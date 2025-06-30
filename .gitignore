@@ -1,0 +1,4 @@
+node_modules/
+public/app.ts
+pnpm-lock.yaml
+.env
