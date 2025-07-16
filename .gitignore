@@ -1,4 +1,4 @@
 node_modules/
-pnpm-lock.yaml
+config/pnpm-lock.yaml
 .env
-claude.html
+dist/js/debug.js

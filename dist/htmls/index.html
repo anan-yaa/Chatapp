@@ -1,265 +1,330 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ChatApp - Modern Messaging</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'chat-dark': '#0f0f0f',
-                        'chat-darker': '#000000',
-                        'chat-gray': '#1a1a1a',
-                        'chat-blue': '#4a90e2',
-                        'chat-blue-light': '#6ba3f0',
-                        'chat-border': '#333333',
-                    }
-                }
-            }
-        }
-    </script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-</head>
-<body class="bg-chat-darker text-white font-sans h-screen overflow-hidden">
+    <link rel="stylesheet" href="/output.css" />
+    <style>
+      :root {
+        --chat-dark: #0f0f0f;
+        --chat-darker: #000000;
+        --chat-gray: #1a1a1a;
+        --chat-blue: #4a90e2;
+        --chat-blue-light: #6ba3f0;
+        --chat-border: #333333;
+      }
+      .bg-chat-dark {
+        background-color: var(--chat-dark);
+      }
+      .bg-chat-darker {
+        background-color: var(--chat-darker);
+      }
+      .bg-chat-gray {
+        background-color: var(--chat-gray);
+      }
+      .bg-chat-blue {
+        background-color: var(--chat-blue);
+      }
+      .bg-chat-blue-light {
+        background-color: var(--chat-blue-light);
+      }
+      .border-chat-border {
+        border-color: var(--chat-border);
+      }
+      .text-chat-blue {
+        color: var(--chat-blue);
+      }
+      .text-chat-blue-light {
+        color: var(--chat-blue-light);
+      }
+      .from-chat-blue {
+        --tw-gradient-from: var(--chat-blue);
+      }
+      .to-chat-blue-light {
+        --tw-gradient-to: var(--chat-blue-light);
+      }
+      .from-chat-gray {
+        --tw-gradient-from: var(--chat-gray);
+      }
+      .to-chat-dark {
+        --tw-gradient-to: var(--chat-dark);
+      }
+      .from-chat-dark {
+        --tw-gradient-from: var(--chat-dark);
+      }
+      .via-chat-darker {
+        --tw-gradient-via: var(--chat-darker);
+      }
+      .to-chat-dark {
+        --tw-gradient-to: var(--chat-dark);
+      }
+      .ring-chat-blue {
+        --tw-ring-color: var(--chat-blue);
+      }
+      .shadow-chat-blue\/30 {
+        box-shadow: 0 0 0 1px rgba(74, 144, 226, 0.3);
+      }
+      .shadow-chat-blue\/25 {
+        box-shadow: 0 0 0 1px rgba(74, 144, 226, 0.25);
+      }
+      .hover\:shadow-chat-blue\/30:hover {
+        box-shadow: 0 0 0 1px rgba(74, 144, 226, 0.3);
+      }
+      .hover\:border-chat-blue:hover {
+        border-color: var(--chat-blue);
+      }
+      .hover\:border-chat-blue\/20:hover {
+        border-color: rgba(74, 144, 226, 0.2);
+      }
+      .hover\:border-chat-blue\/30:hover {
+        border-color: rgba(74, 144, 226, 0.3);
+      }
+      .hover\:bg-chat-gray:hover {
+        background-color: var(--chat-gray);
+      }
+      .hover\:bg-chat-blue:hover {
+        background-color: var(--chat-blue);
+      }
+      .hover\:bg-opacity-30:hover {
+        --tw-bg-opacity: 0.3;
+      }
+      .hover\:text-chat-blue-light:hover {
+        color: var(--chat-blue-light);
+      }
+      .hover\:text-white:hover {
+        color: white;
+      }
+      .focus\:ring-chat-blue:focus {
+        --tw-ring-color: var(--chat-blue);
+      }
+      .focus\:border-transparent:focus {
+        border-color: transparent;
+      }
+      .bg-opacity-10 {
+        --tw-bg-opacity: 0.1;
+      }
+      .bg-opacity-20 {
+        --tw-bg-opacity: 0.2;
+      }
+      .bg-opacity-50 {
+        --tw-bg-opacity: 0.5;
+      }
+      .border-opacity-30 {
+        --tw-border-opacity: 0.3;
+      }
+      .border-opacity-20 {
+        --tw-border-opacity: 0.2;
+      }
+      #settingsModal {
+        display: flex !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+      }
+    </style>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-chat-darker text-white font-sans h-screen overflow-hidden">
     <div class="flex h-screen">
-        <!-- Left Side Panel -->
-        <div class="w-16 bg-gradient-to-b from-chat-gray to-chat-dark border-r border-chat-border flex flex-col items-center py-4">
-            <!-- Logo Icon -->
-            <div class="w-10 h-10 bg-gradient-to-br from-chat-blue to-chat-blue-light rounded-xl flex items-center justify-center shadow-lg shadow-chat-blue/30 mb-8">
-                <i class="fas fa-comments text-white text-lg"></i>
-            </div>
-            
-            <!-- Navigation Icons -->
-            <div class="flex flex-col gap-3">
-                <button class="w-10 h-10 bg-chat-blue bg-opacity-20 hover:bg-opacity-30 rounded-lg border border-chat-blue border-opacity-30 transition-all duration-200 group flex items-center justify-center">
-                    <i class="fas fa-message text-chat-blue group-hover:text-chat-blue-light transition-colors"></i>
-                </button>
-                <button class="w-10 h-10 bg-chat-dark hover:bg-chat-gray rounded-lg border border-chat-border transition-all duration-200 flex items-center justify-center">
-                    <i class="fas fa-users text-gray-400 hover:text-white transition-colors"></i>
-                </button>
-                <button class="w-10 h-10 bg-chat-dark hover:bg-chat-gray rounded-lg border border-chat-border transition-all duration-200 flex items-center justify-center">
-                    <i class="fas fa-cog text-gray-400 hover:text-white transition-colors"></i>
-                </button>
-            </div>
+      <!-- Left Side Panel -->
+      <div
+        class="w-16 bg-gradient-to-b from-chat-gray to-chat-dark border-r border-chat-border flex flex-col items-center py-4"
+      >
+        <!-- Logo Icon -->
+        <div
+          class="w-10 h-10 bg-gradient-to-br from-chat-blue to-chat-blue-light rounded-xl flex items-center justify-center shadow-lg shadow-chat-blue/30 mb-8"
+        >
+          <i class="fas fa-comments text-white text-lg"></i>
         </div>
-        
-        <!-- Sidebar -->
-        <div class="w-80 bg-gradient-to-b from-chat-gray to-chat-dark border-r border-chat-border flex flex-col relative">
-            <!-- Gradient border effect -->
-            <div class="absolute right-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-chat-blue to-transparent"></div>
-            
-            <!-- Header -->
-            <div class="p-6 border-b border-chat-border bg-chat-blue bg-opacity-10">
-                <!-- Logo Text -->
-                <div class="flex items-center gap-3 mb-6">
-                    <h1 class="text-2xl font-bold bg-gradient-to-r from-chat-blue to-white bg-clip-text text-transparent">
-                        ChatApp
-                    </h1>
-                </div>
-                
-                <!-- Search -->
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fas fa-search text-gray-400"></i>
-                    </div>
-                    <input type="text" 
-                           placeholder="Search conversations..." 
-                           class="w-full pl-10 pr-4 py-3 bg-chat-dark border border-chat-border rounded-xl focus:outline-none focus:ring-2 focus:ring-chat-blue focus:border-transparent placeholder-gray-400 transition-all duration-200">
-                </div>
-            </div>
-            
-            <!-- Chat List -->
-            <div class="flex-1 overflow-y-auto">
-                <div class="p-4">
-                    <h2 class="text-sm font-semibold text-gray-400 mb-4 uppercase tracking-wider">Recent Chats</h2>
-                    
-                    <!-- Chat Item 1 -->
-                    <div class="mb-2">
-                        <div class="flex items-center p-3 hover:bg-chat-gray rounded-xl transition-all duration-200 cursor-pointer group border border-transparent hover:border-chat-blue hover:border-opacity-20">
-                            <div class="relative">
-                                <div class="w-12 h-12 bg-gradient-to-br from-chat-blue to-chat-blue-light rounded-full flex items-center justify-center font-semibold text-white shadow-lg">
-                                    M
-                                </div>
-                                <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-chat-darker"></div>
-                            </div>
-                            <div class="ml-3 flex-1 min-w-0">
-                                <div class="flex items-center justify-between">
-                                    <h3 class="font-semibold text-white truncate">Mike Johnson</h3>
-                                    <span class="text-xs text-gray-400">12:59 PM</span>
-                                </div>
-                                <p class="text-sm text-gray-400 truncate">Hey! How's the project going?</p>
-                            </div>
-                            <div class="ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                <i class="fas fa-ellipsis-v text-gray-400 hover:text-white cursor-pointer"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Chat Item 2 -->
-                    <div class="mb-2">
-                        <div class="flex items-center p-3 hover:bg-chat-gray rounded-xl transition-all duration-200 cursor-pointer group border border-transparent hover:border-chat-blue hover:border-opacity-20">
-                            <div class="relative">
-                                <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center font-semibold text-white shadow-lg">
-                                    S
-                                </div>
-                                <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-yellow-500 rounded-full border-2 border-chat-darker"></div>
-                            </div>
-                            <div class="ml-3 flex-1 min-w-0">
-                                <div class="flex items-center justify-between">
-                                    <h3 class="font-semibold text-white truncate">Sarah Chen</h3>
-                                    <span class="text-xs text-gray-400">11:01 AM</span>
-                                </div>
-                                <p class="text-sm text-gray-400 truncate">Can we schedule a meeting for tomorrow?</p>
-                            </div>
-                            <div class="ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                <i class="fas fa-ellipsis-v text-gray-400 hover:text-white cursor-pointer"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Chat Item 3 -->
-                    <div class="mb-2">
-                        <div class="flex items-center p-3 hover:bg-chat-gray rounded-xl transition-all duration-200 cursor-pointer group border border-transparent hover:border-chat-blue hover:border-opacity-20">
-                            <div class="relative">
-                                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center font-semibold text-white shadow-lg">
-                                    D
-                                </div>
-                                <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-500 rounded-full border-2 border-chat-darker"></div>
-                            </div>
-                            <div class="ml-3 flex-1 min-w-0">
-                                <div class="flex items-center justify-between">
-                                    <h3 class="font-semibold text-white truncate">Dylan Martinez</h3>
-                                    <span class="text-xs text-gray-400">1:40 AM</span>
-                                </div>
-                                <p class="text-sm text-gray-400 truncate">Thanks for the help earlier!</p>
-                            </div>
-                            <div class="ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                <i class="fas fa-ellipsis-v text-gray-400 hover:text-white cursor-pointer"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Chat Item 4 -->
-                    <div class="mb-2">
-                        <div class="flex items-center p-3 hover:bg-chat-gray rounded-xl transition-all duration-200 cursor-pointer group border border-transparent hover:border-chat-blue hover:border-opacity-20">
-                            <div class="relative">
-                                <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center font-semibold text-white shadow-lg">
-                                    A
-                                </div>
-                                <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-chat-darker"></div>
-                            </div>
-                            <div class="ml-3 flex-1 min-w-0">
-                                <div class="flex items-center justify-between">
-                                    <h3 class="font-semibold text-white truncate">Alex Rivera</h3>
-                                    <span class="text-xs text-gray-400">Yesterday</span>
-                                </div>
-                                <p class="text-sm text-gray-400 truncate">Let's catch up this weekend!</p>
-                            </div>
-                            <div class="ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                <i class="fas fa-ellipsis-v text-gray-400 hover:text-white cursor-pointer"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
+        <!-- Navigation Icons -->
+        <div class="flex flex-col gap-3">
+          <button
+            class="w-10 h-10 bg-chat-blue bg-opacity-20 hover:bg-opacity-30 rounded-lg border border-chat-blue border-opacity-30 transition-all duration-200 group flex items-center justify-center"
+          >
+            <i
+              class="fas fa-message text-chat-blue group-hover:text-chat-blue-light transition-colors"
+            ></i>
+          </button>
+          <button
+            class="w-10 h-10 bg-chat-dark hover:bg-chat-gray rounded-lg border border-chat-border transition-all duration-200 flex items-center justify-center"
+          >
+            <i
+              class="fas fa-users text-gray-400 hover:text-white transition-colors"
+            ></i>
+          </button>
+          <button
+            id="settingsBtn"
+            class="w-10 h-10 bg-chat-dark hover:bg-chat-gray rounded-lg border border-chat-border transition-all duration-200 flex items-center justify-center"
+            aria-label="Open settings"
+          >
+            <i
+              class="fas fa-cog text-gray-400 hover:text-white transition-colors"
+            ></i>
+          </button>
         </div>
-        
-        <!-- Main Chat Area -->
-        <div class="flex-1 flex flex-col bg-gradient-to-br from-chat-dark via-chat-darker to-chat-dark">
-            <!-- Chat Header -->
-            <div class="p-6 border-b border-chat-border bg-chat-gray bg-opacity-50 backdrop-blur-sm">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <div class="relative">
-                            <div class="w-12 h-12 bg-gradient-to-br from-chat-blue to-chat-blue-light rounded-full flex items-center justify-center font-semibold text-white shadow-lg">
-                                M
-                            </div>
-                            <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-chat-darker"></div>
-                        </div>
-                        <div>
-                            <h2 class="font-semibold text-white text-lg">Mike Johnson</h2>
-                            <p class="text-sm text-green-400">Active now</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <button class="w-10 h-10 bg-chat-dark hover:bg-chat-gray rounded-lg border border-chat-border transition-all duration-200 flex items-center justify-center group">
-                            <i class="fas fa-phone text-gray-400 group-hover:text-white transition-colors"></i>
-                        </button>
-                        <button class="w-10 h-10 bg-chat-dark hover:bg-chat-gray rounded-lg border border-chat-border transition-all duration-200 flex items-center justify-center group">
-                            <i class="fas fa-video text-gray-400 group-hover:text-white transition-colors"></i>
-                        </button>
-                        <button class="w-10 h-10 bg-chat-dark hover:bg-chat-gray rounded-lg border border-chat-border transition-all duration-200 flex items-center justify-center group">
-                            <i class="fas fa-ellipsis-v text-gray-400 group-hover:text-white transition-colors"></i>
-                        </button>
-                    </div>
-                </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div
+        class="w-80 bg-gradient-to-b from-chat-gray to-chat-dark border-r border-chat-border flex flex-col relative"
+      >
+        <!-- Gradient border effect -->
+        <div
+          class="absolute right-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-chat-blue to-transparent"
+        ></div>
+
+        <!-- Header -->
+        <div class="p-6 border-b border-chat-border bg-chat-blue bg-opacity-10">
+          <!-- Logo Text and Logout -->
+          <div class="flex items-center justify-between mb-6">
+            <h1
+              class="text-2xl font-bold bg-gradient-to-r from-chat-blue to-white bg-clip-text text-transparent"
+            >
+              ChatApp
+            </h1>
+            <button
+              id="logoutBtn"
+              class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 ml-4"
+            >
+              <i class="fas fa-sign-out-alt"></i>
+              Logout
+            </button>
+          </div>
+
+          <!-- Search -->
+          <div class="search-container relative">
+            <div
+              class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+            >
+              <i class="fas fa-search text-gray-400"></i>
             </div>
-            
-            <!-- Chat Messages -->
-            <div class="flex-1 overflow-y-auto p-6 space-y-4">
-                <!-- Received Message -->
-                <div class="flex items-start gap-3">
-                    <div class="w-8 h-8 bg-gradient-to-br from-chat-blue to-chat-blue-light rounded-full flex items-center justify-center font-semibold text-white text-sm shadow-lg">
-                        M
-                    </div>
-                    <div class="flex flex-col max-w-xs">
-                        <div class="bg-chat-gray border border-chat-border rounded-2xl rounded-tl-md px-4 py-3 shadow-lg">
-                            <p class="text-white">Hey! How's the project going? I've been working on the new features and would love to get your feedback.</p>
-                        </div>
-                        <span class="text-xs text-gray-400 mt-1 ml-2">12:59 PM</span>
-                    </div>
-                </div>
-                
-                <!-- Sent Message -->
-                <div class="flex items-start gap-3 justify-end">
-                    <div class="flex flex-col max-w-xs items-end">
-                        <div class="bg-gradient-to-r from-chat-blue to-chat-blue-light rounded-2xl rounded-tr-md px-4 py-3 shadow-lg">
-                            <p class="text-white">It's going great! Just finished the authentication system. Ready to review whenever you are.</p>
-                        </div>
-                        <span class="text-xs text-gray-400 mt-1 mr-2">1:02 PM</span>
-                    </div>
-                    <div class="w-8 h-8 bg-gradient-to-br from-gray-600 to-gray-700 rounded-full flex items-center justify-center font-semibold text-white text-sm shadow-lg">
-                        Y
-                    </div>
-                </div>
-                
-                <!-- Received Message -->
-                <div class="flex items-start gap-3">
-                    <div class="w-8 h-8 bg-gradient-to-br from-chat-blue to-chat-blue-light rounded-full flex items-center justify-center font-semibold text-white text-sm shadow-lg">
-                        M
-                    </div>
-                    <div class="flex flex-col max-w-xs">
-                        <div class="bg-chat-gray border border-chat-border rounded-2xl rounded-tl-md px-4 py-3 shadow-lg">
-                            <p class="text-white">Perfect! Let's schedule a call for tomorrow morning to go through everything.</p>
-                        </div>
-                        <span class="text-xs text-gray-400 mt-1 ml-2">1:05 PM</span>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Message Input -->
-            <div class="p-6 border-t border-chat-border bg-chat-gray bg-opacity-50 backdrop-blur-sm">
-                <div class="flex items-center gap-4">
-                    <button class="w-10 h-10 bg-chat-dark hover:bg-chat-gray rounded-lg border border-chat-border transition-all duration-200 flex items-center justify-center group">
-                        <i class="fas fa-paperclip text-gray-400 group-hover:text-white transition-colors"></i>
-                    </button>
-                    <div class="flex-1 relative">
-                        <input type="text" 
-                               placeholder="Type a message..." 
-                               class="w-full px-4 py-3 bg-chat-dark border border-chat-border rounded-xl focus:outline-none focus:ring-2 focus:ring-chat-blue focus:border-transparent placeholder-gray-400 text-white transition-all duration-200">
-                        <button class="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-gradient-to-r from-chat-blue to-chat-blue-light rounded-lg flex items-center justify-center hover:shadow-lg hover:shadow-chat-blue/30 transition-all duration-200">
-                            <i class="fas fa-paper-plane text-white text-sm"></i>
-                        </button>
-                    </div>
-                    <button class="w-10 h-10 bg-chat-dark hover:bg-chat-gray rounded-lg border border-chat-border transition-all duration-200 flex items-center justify-center group">
-                        <i class="fas fa-smile text-gray-400 group-hover:text-white transition-colors"></i>
-                    </button>
-                </div>
-            </div>
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Search conversations..."
+              class="w-full pl-10 pr-4 py-3 bg-chat-dark border border-chat-border rounded-xl focus:outline-none focus:ring-2 focus:ring-chat-blue focus:border-transparent placeholder-gray-400 transition-all duration-200"
+            />
+          </div>
         </div>
+
+        <!-- Chat List -->
+        <div class="flex-1 overflow-y-auto">
+          <div class="p-4">
+            <h2
+              class="text-sm font-semibold text-gray-400 mb-4 uppercase tracking-wider"
+            >
+              Recent Chats
+            </h2>
+
+            <div class="chat-list">
+              <!-- Chat items will be dynamically loaded here -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Chat Area -->
+      <div
+        class="flex-1 flex flex-col bg-gradient-to-br from-chat-dark via-chat-darker to-chat-dark"
+      >
+        <!-- Chat Header -->
+        <div
+          class="chat-header p-6 border-b border-chat-border bg-chat-gray bg-opacity-50 backdrop-blur-sm"
+        >
+          <!-- Chat header will be dynamically filled by JS -->
+        </div>
+
+        <!-- Chat Messages -->
+        <div class="chat-messages flex-1 overflow-y-auto p-6 space-y-4">
+          <!-- Messages will be dynamically loaded here -->
+        </div>
+
+        <!-- Message Input -->
+        <div
+          class="message-input-container p-6 border-t border-chat-border bg-chat-gray bg-opacity-50 backdrop-blur-sm"
+        >
+          <div class="flex items-center gap-4">
+            <button
+              class="w-10 h-10 bg-chat-dark hover:bg-chat-gray rounded-lg border border-chat-border transition-all duration-200 flex items-center justify-center group"
+            >
+              <i
+                class="fas fa-paperclip text-gray-400 group-hover:text-white transition-colors"
+              ></i>
+            </button>
+            <div class="flex-1 relative">
+              <input
+                type="text"
+                id="messageInput"
+                placeholder="Type a message..."
+                class="w-full px-4 py-3 bg-chat-dark border border-chat-border rounded-xl focus:outline-none focus:ring-2 focus:ring-chat-blue focus:border-transparent placeholder-gray-400 text-white transition-all duration-200"
+              />
+              <button
+                id="sendButton"
+                class="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-gradient-to-r from-chat-blue to-chat-blue-light rounded-lg flex items-center justify-center hover:shadow-lg hover:shadow-chat-blue/30 transition-all duration-200"
+              >
+                <i class="fas fa-paper-plane text-white text-sm"></i>
+              </button>
+            </div>
+            <button
+              class="w-10 h-10 bg-chat-dark hover:bg-chat-gray rounded-lg border border-chat-border transition-all duration-200 flex items-center justify-center group"
+            >
+              <i
+                class="fas fa-smile text-gray-400 group-hover:text-white transition-colors"
+              ></i>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
-</body>
+
+    <!-- Socket.IO client -->
+    <script src="/socket.io/socket.io.js"></script>
+    <!-- Test connection script -->
+    <script src="/js/test-connection.js"></script>
+    <!-- Debug script -->
+    <script src="/js/debug.js"></script>
+    <!-- Auth and Chat scripts -->
+    <script src="/js/auth.js"></script>
+    <script src="/js/chat.js"></script>
+
+    <!-- Settings Modal -->
+    <div
+      id="settingsModal"
+      class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-60 hidden"
+    >
+      <div
+        class="bg-chat-gray rounded-2xl shadow-lg w-full max-w-md p-8 relative border border-chat-border"
+      >
+        <button
+          id="closeSettings"
+          class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl focus:outline-none"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+        <h2 class="text-2xl font-bold mb-6 text-white">Settings</h2>
+        <form id="displayNameForm" class="mb-6">
+          <label for="displayName" class="block text-gray-300 mb-2"
+            >Display Name</label
+          >
+          <input
+            type="text"
+            id="displayName"
+            name="displayName"
+            class="w-full px-4 py-2 rounded-lg bg-chat-dark border border-chat-border text-white focus:outline-none focus:ring-2 focus:ring-chat-blue"
+          />
+          <button
+            type="submit"
+            class="mt-4 w-full bg-chat-blue hover:bg-chat-blue-light text-white font-semibold py-2 rounded-lg transition-colors"
+          >
+            Save
+          </button>
+        </form>
+        <!-- Logout button removed from modal -->
+      </div>
+    </div>
+  </body>
 </html>

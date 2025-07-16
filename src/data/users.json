@@ -1,0 +1,50 @@
+[
+  {
+    "email": "test@example.com",
+    "password": "$2a$10$HsNEZOSffm1uF2uJE6wz7eWSaAWSnvluuKAk6ivRwgi2CQbjQeRT6",
+    "username": "Testperson",
+    "status": "online",
+    "lastSeen": "2025-07-16T09:04:45.798Z",
+    "id": "ph74y8lunmczzk9dr"
+  },
+  {
+    "email": "alice@bot.com",
+    "password": "$2a$10$HsNEZOSffm1uF2uJE6wz7eWSaAWSnvluuKAk6ivRwgi2CQbjQeRT6",
+    "username": "Alice",
+    "status": "offline",
+    "lastSeen": "2025-07-16T08:11:38.379Z",
+    "id": "p6nuzlrp6md5on2ff"
+  },
+  {
+    "email": "bob@bot.com",
+    "password": "$2a$10$HsNEZOSffm1uF2uJE6wz7eWSaAWSnvluuKAk6ivRwgi2CQbjQeRT6",
+    "username": "Bob",
+    "status": "offline",
+    "lastSeen": "2025-07-16T08:11:38.381Z",
+    "id": "81pveaeeqmd5on2fh"
+  },
+  {
+    "email": "charlie@bot.com",
+    "password": "$2a$10$HsNEZOSffm1uF2uJE6wz7eWSaAWSnvluuKAk6ivRwgi2CQbjQeRT6",
+    "username": "Charlie",
+    "status": "offline",
+    "lastSeen": "2025-07-16T08:11:38.382Z",
+    "id": "45v26dopzmd5on2fi"
+  },
+  {
+    "email": "diana@bot.com",
+    "password": "$2a$10$HsNEZOSffm1uF2uJE6wz7eWSaAWSnvluuKAk6ivRwgi2CQbjQeRT6",
+    "username": "Diana",
+    "status": "offline",
+    "lastSeen": "2025-07-16T08:11:38.383Z",
+    "id": "95nvyhn1hmd5on2fj"
+  },
+  {
+    "email": "emma@bot.com",
+    "password": "$2a$10$HsNEZOSffm1uF2uJE6wz7eWSaAWSnvluuKAk6ivRwgi2CQbjQeRT6",
+    "username": "Emma",
+    "status": "offline",
+    "lastSeen": "2025-07-16T08:11:38.383Z",
+    "id": "qgvctb5zzmd5on2fj"
+  }
+]

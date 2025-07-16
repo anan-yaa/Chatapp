@@ -1,0 +1,74 @@
+[
+  {
+    "content": "hi",
+    "senderId": "ph74y8lunmczzk9dr",
+    "receiverId": "p6nuzlrp6md5on2ff",
+    "type": "text",
+    "id": "33f46lm2tmd5opqe0",
+    "timestamp": "2025-07-16T08:13:42.744Z",
+    "read": false
+  },
+  {
+    "content": "Hi there! 👋 How are you doing today?",
+    "senderId": "p6nuzlrp6md5on2ff",
+    "receiverId": "ph74y8lunmczzk9dr",
+    "type": "text",
+    "id": "iar8ussbtmd5opr9g",
+    "timestamp": "2025-07-16T08:13:43.876Z",
+    "read": false
+  },
+  {
+    "content": "hello",
+    "senderId": "ph74y8lunmczzk9dr",
+    "receiverId": "p6nuzlrp6md5on2ff",
+    "type": "text",
+    "id": "h2h8e5aibmd5optzv",
+    "timestamp": "2025-07-16T08:13:47.419Z",
+    "read": false
+  },
+  {
+    "content": "Hey! I'm Alice, great to chat with you!",
+    "senderId": "p6nuzlrp6md5on2ff",
+    "receiverId": "ph74y8lunmczzk9dr",
+    "type": "text",
+    "id": "cbp4h0bnamd5opvfr",
+    "timestamp": "2025-07-16T08:13:49.287Z",
+    "read": false
+  },
+  {
+    "content": "fitness",
+    "senderId": "ph74y8lunmczzk9dr",
+    "receiverId": "p6nuzlrp6md5on2ff",
+    "type": "text",
+    "id": "acebfmdnzmd5oq0sb",
+    "timestamp": "2025-07-16T08:13:56.219Z",
+    "read": false
+  },
+  {
+    "content": "Thanks for sharing! I'm here to chat whenever you want! 💬",
+    "senderId": "p6nuzlrp6md5on2ff",
+    "receiverId": "ph74y8lunmczzk9dr",
+    "type": "text",
+    "id": "s45mi6crkmd5oq1le",
+    "timestamp": "2025-07-16T08:13:57.266Z",
+    "read": false
+  },
+  {
+    "content": "good morning",
+    "senderId": "ph74y8lunmczzk9dr",
+    "receiverId": "p6nuzlrp6md5on2ff",
+    "type": "text",
+    "id": "e1wnf9f10md5oqciq",
+    "timestamp": "2025-07-16T08:14:11.426Z",
+    "read": false
+  },
+  {
+    "content": "That's interesting! Tell me more about that! 🤔",
+    "senderId": "p6nuzlrp6md5on2ff",
+    "receiverId": "ph74y8lunmczzk9dr",
+    "type": "text",
+    "id": "pecjcpplemd5oqec8",
+    "timestamp": "2025-07-16T08:14:13.784Z",
+    "read": false
+  }
+]

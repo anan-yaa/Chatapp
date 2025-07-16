@@ -1,40 +1,111 @@
 import express from "express";
-import { createServer } from "node:http";
-import { Server } from "socket.io";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
-
-// Only needed if using ES modules. If using CommonJS, you already have __dirname and __filename.
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import http from "http";
+import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import path from "path";
+import authRoutes from "./routes/auth";
+import chatRoutes from "./routes/chat";
+import { SocketService } from "./services/socket";
 
 const app = express();
-const server = createServer(app);
-const io = new Server(server);
+const server = http.createServer(app);
+const PORT = process.env.PORT || 3000;
 
-// Serve static files (JS, CSS, etc.) from ../dist
-app.use(express.static(join(__dirname, "../dist")));
+// Security middleware
+app.use(helmet());
+app.use(
+  cors({
+    origin: process.env.NODE_ENV === "production" ? false : true,
+    credentials: true,
+  })
+);
 
-// Serve index.html on root
-app.get("/", (req, res) => {
-  res.sendFile(join(__dirname, "../dist", "index.html"));
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: "Too many requests from this IP, please try again later.",
+});
+app.use("/api/", limiter);
+
+// Body parsing middleware
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true }));
+
+// Serve static files
+app.use(express.static(path.join(__dirname, "../dist")));
+
+// API routes
+app.use("/api/auth", authRoutes);
+app.use("/api/chat", chatRoutes);
+
+// Health check endpoint
+app.get("/api/health", (req, res) => {
+  res.json({ status: "OK", timestamp: new Date().toISOString() });
 });
 
-// Socket.IO chat logic
-io.on("connection", (socket) => {
-  console.log("A user connected:", socket.id);
+// Serve HTML files
+app.get("/login", (req, res) => {
+  res.sendFile(path.join(__dirname, "../dist/htmls/login.html"));
+});
 
-  socket.on("chat message", (msg) => {
-    io.emit("chat message", msg);
-  });
+app.get("/signup", (req, res) => {
+  res.sendFile(path.join(__dirname, "../dist/htmls/signup.html"));
+});
 
-  socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
-  });
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../dist/htmls/index.html"));
+});
+
+app.get("/test", (req, res) => {
+  res.sendFile(path.join(__dirname, "../dist/test.html"));
+});
+
+app.get("/bots", (req, res) => {
+  res.sendFile(path.join(__dirname, "../dist/bots.html"));
+});
+
+// Initialize Socket.IO
+const socketService = new SocketService(server);
+
+// Error handling middleware
+app.use(
+  (
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    console.error(err.stack);
+    res.status(500).json({ error: "Something went wrong!" });
+  }
+);
+
+// 404 handler
+app.use("*", (req, res) => {
+  res.status(404).json({ error: "Route not found" });
 });
 
 // Start server
-const PORT = 3000;
 server.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📱 Chat app available at http://localhost:${PORT}`);
+  console.log(`🔐 Login page: http://localhost:${PORT}/login`);
+  console.log(`📝 Signup page: http://localhost:${PORT}/signup`);
+});
+
+// Graceful shutdown
+process.on("SIGTERM", () => {
+  console.log("SIGTERM received, shutting down gracefully");
+  server.close(() => {
+    console.log("Process terminated");
+  });
+});
+
+process.on("SIGINT", () => {
+  console.log("SIGINT received, shutting down gracefully");
+  server.close(() => {
+    console.log("Process terminated");
+  });
 });
