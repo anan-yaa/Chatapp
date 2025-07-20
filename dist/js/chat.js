@@ -17,6 +17,7 @@ class ChatService {
 
     this.currentUser = window.authService.getUser();
     await this.loadUsers();
+    await this.loadAllMessages(); // Load all messages for sorting
     this.initializeSocket();
     this.setupEventListeners();
     this.updateUI();
@@ -41,6 +42,23 @@ class ChatService {
     }
   }
 
+  async loadAllMessages() {
+    try {
+      // Load messages for all users
+      const promises = this.users.map((user) =>
+        fetch(`/api/chat/messages/${user.id}`, {
+          headers: window.authService.getAuthHeaders(),
+        }).then((response) => response.json())
+      );
+
+      const allMessages = await Promise.all(promises);
+      this.messages = allMessages.flat();
+    } catch (error) {
+      console.error("Error loading all messages:", error);
+    }
+  }
+
+  // Update the existing loadMessages method
   async loadMessages(userId) {
     try {
       console.log("Loading messages for user:", userId);
@@ -52,8 +70,12 @@ class ChatService {
         throw new Error("Failed to load messages");
       }
 
-      this.messages = await response.json();
-      console.log("Loaded messages:", this.messages);
+      const messages = await response.json();
+
+      // Update messages for this conversation
+      this.messages = messages;
+
+      console.log("Loaded messages:", messages);
       this.renderMessages();
     } catch (error) {
       console.error("Error loading messages:", error);
@@ -90,18 +112,32 @@ class ChatService {
       console.log("Disconnected from server");
     });
 
+    // Update message handling to prevent duplicates
     this.socket.on("message", (message) => {
-      this.messages.push(message);
-      this.renderMessages();
-      this.updateUserList();
+      console.log("New message received:", message);
+
+      // If this is for the current chat, add to messages and render
+      if (
+        this.currentChatUser &&
+        (message.senderId === this.currentChatUser.id ||
+          message.receiverId === this.currentChatUser.id)
+      ) {
+        this.messages.push(message);
+        this.renderMessages();
+      }
+
+      // Always update the user list to reflect new message order
+      this.renderUserList();
     });
 
     this.socket.on("userOnline", (userId) => {
       this.updateUserStatus(userId, "online");
+      this.renderUserList(); // Re-render to show online status
     });
 
     this.socket.on("userOffline", (userId) => {
       this.updateUserStatus(userId, "offline");
+      this.renderUserList(); // Re-render to show offline status
     });
 
     this.socket.on("typing", (data) => {
@@ -117,12 +153,11 @@ class ChatService {
   setupEventListeners() {
     console.log("Setting up event listeners...");
 
-    // Message input
+    // Message input and emoji
     const messageInput = document.getElementById("messageInput");
     const sendButton = document.getElementById("sendButton");
-
-    console.log("Message input found:", !!messageInput);
-    console.log("Send button found:", !!sendButton);
+    const emojiButton = document.getElementById("emojiButton");
+    const emojiPicker = document.getElementById("emojiPicker");
 
     if (messageInput && sendButton) {
       messageInput.addEventListener("keypress", (e) => {
@@ -145,11 +180,353 @@ class ChatService {
       console.error("Message input or send button not found!");
     }
 
+    // Emoji picker functionality
+    if (emojiButton && messageInput) {
+      const emojiCategories = {
+        smileys: [
+          "😀",
+          "😃",
+          "😄",
+          "😁",
+          "😅",
+          "😂",
+          "🤣",
+          "😊",
+          "😇",
+          "🙂",
+          "🙃",
+          "😉",
+          "😌",
+          "😍",
+          "🥰",
+          "😘",
+          "😗",
+          "😙",
+          "😚",
+          "😋",
+          "😛",
+          "😝",
+          "😜",
+          "🤪",
+          "🤨",
+          "🧐",
+          "🤓",
+          "😎",
+          "🥸",
+          "🤩",
+          "🥳",
+          "😏",
+          "😒",
+          "😞",
+          "😔",
+          "😟",
+          "😕",
+          "🙁",
+          "☹️",
+          "😣",
+          "😖",
+          "😫",
+          "😩",
+          "🥺",
+          "😢",
+          "😭",
+          "😤",
+          "😠",
+          "😡",
+          "🤬",
+          "🤯",
+          "😳",
+          "🥵",
+          "🥶",
+          "😱",
+          "😨",
+          "😰",
+          "😥",
+          "😓",
+          "🤗",
+          "🤔",
+          "🤭",
+          "🤫",
+          "🤥",
+          "😶",
+          "😐",
+          "😑",
+          "😬",
+          "🙄",
+          "😯",
+          "😦",
+          "😧",
+          "😮",
+          "😲",
+          "🥱",
+          "😴",
+          "🤤",
+          "😪",
+          "😵",
+          "🤐",
+          "🥴",
+          "🤢",
+          "🤮",
+          "🤧",
+          "😷",
+          "🤒",
+          "🤕",
+        ],
+        gestures: [
+          "👋",
+          "🤚",
+          "✋",
+          "🖐️",
+          "👌",
+          "🤌",
+          "🤏",
+          "✌️",
+          "🤞",
+          "🤟",
+          "🤘",
+          "🤙",
+          "👈",
+          "👉",
+          "👆",
+          "👇",
+          "☝️",
+          "👍",
+          "👎",
+          "✊",
+          "👊",
+          "🤛",
+          "🤜",
+          "👏",
+          "🙌",
+          "👐",
+          "🤲",
+          "🤝",
+          "🙏",
+          "💪",
+          "🦾",
+          "🖕",
+          "✍️",
+          "🤳",
+          "💅",
+          "🦵",
+          "🦿",
+          "🦶",
+          "👂",
+          "🦻",
+          "👃",
+          "🧠",
+          "🫀",
+          "🫁",
+          "🦷",
+          "🦴",
+          "👀",
+          "👁️",
+          "👅",
+          "👄",
+          "🫦",
+          "💋",
+          "🩸",
+        ],
+        hearts: [
+          "❤️",
+          "🧡",
+          "💛",
+          "💚",
+          "💙",
+          "💜",
+          "🤎",
+          "🖤",
+          "🤍",
+          "💔",
+          "❣️",
+          "💕",
+          "💞",
+          "💓",
+          "💗",
+          "💖",
+          "💘",
+          "💝",
+          "💟",
+          "♥️",
+          "💌",
+          "💋",
+          "👥",
+          "👤",
+          "🗣️",
+          "🫂",
+          "💑",
+          "👩‍❤️‍👩",
+          "👨‍❤️‍👨",
+          "💏",
+          "👩‍❤️‍💋‍👩",
+          "👨‍❤️‍💋‍👨",
+          "🤍",
+          "💘",
+          "💝",
+          "💖",
+          "💗",
+          "💓",
+          "💞",
+          "💕",
+          "💟",
+        ],
+      };
+
+      let currentCategory = "smileys";
+
+      const closeEmojiPicker = () => {
+        console.log("Closing emoji picker"); // Debug log
+        const emojiPicker = document.getElementById("emojiPicker");
+        if (emojiPicker) {
+          emojiPicker.classList.add("hidden");
+        }
+      };
+
+      const renderEmojiGrid = (category) => {
+        const emojiGrid = document.querySelector(".emoji-grid");
+        if (!emojiGrid) return;
+
+        const emojis = emojiCategories[category];
+        emojiGrid.innerHTML = emojis
+          .map(
+            (emoji) => `
+          <button class="p-2 text-xl hover:bg-chat-gray rounded-lg transition-colors duration-200 emoji-btn">
+            ${emoji}
+          </button>
+        `
+          )
+          .join("");
+      };
+
+      // Category button click handlers
+      const categoryButtons = document.querySelectorAll(".emoji-category-btn");
+      categoryButtons.forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const category = btn.dataset.category;
+
+          // Update active state
+          categoryButtons.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+
+          // Render emojis for selected category
+          currentCategory = category;
+          renderEmojiGrid(category);
+        });
+      });
+
+      // Initialize close button handler
+      const initializeCloseButton = () => {
+        console.log("Initializing close button"); // Debug log
+        const closeButton = document.getElementById("closeEmojiPicker");
+        console.log("Close button found:", !!closeButton); // Debug log
+
+        if (closeButton) {
+          // Remove any existing listeners
+          closeButton.replaceWith(closeButton.cloneNode(true));
+
+          // Get the fresh element
+          const freshCloseButton = document.getElementById("closeEmojiPicker");
+
+          // Add new click listener
+          freshCloseButton.addEventListener("click", (e) => {
+            console.log("Close button clicked"); // Debug log
+            e.preventDefault();
+            e.stopPropagation();
+            closeEmojiPicker();
+          });
+        }
+      };
+
+      emojiButton.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const emojiPicker = document.getElementById("emojiPicker");
+        const isVisible = !emojiPicker.classList.contains("hidden");
+
+        if (isVisible) {
+          closeEmojiPicker();
+        } else {
+          // Show picker and render initial category
+          emojiPicker.classList.remove("hidden");
+          renderEmojiGrid(currentCategory);
+
+          // Position the picker above the input area
+          const buttonRect = emojiButton.getBoundingClientRect();
+          const pickerHeight = 300; // Approximate height of picker
+
+          // Calculate position to appear above the input
+          emojiPicker.style.bottom = `${
+            window.innerHeight - buttonRect.top + 10
+          }px`;
+          emojiPicker.style.right = `${
+            window.innerWidth - buttonRect.right + 30
+          }px`;
+
+          // Initialize close button after showing the picker
+          setTimeout(initializeCloseButton, 0);
+        }
+      });
+
+      // Emoji click handler
+      document.querySelector(".emoji-grid").addEventListener("click", (e) => {
+        const emojiBtn = e.target.closest(".emoji-btn");
+        if (emojiBtn) {
+          e.stopPropagation();
+          const emoji = emojiBtn.textContent.trim();
+          const cursorPos = messageInput.selectionStart;
+          const textBefore = messageInput.value.substring(0, cursorPos);
+          const textAfter = messageInput.value.substring(cursorPos);
+
+          messageInput.value = textBefore + emoji + textAfter;
+          messageInput.focus();
+          messageInput.selectionStart = cursorPos + emoji.length;
+          messageInput.selectionEnd = cursorPos + emoji.length;
+
+          closeEmojiPicker();
+        }
+      });
+
+      // Close emoji picker when clicking outside
+      document.addEventListener("click", (e) => {
+        const emojiPicker = document.getElementById("emojiPicker");
+        if (
+          emojiPicker &&
+          !emojiPicker.contains(e.target) &&
+          e.target !== emojiButton
+        ) {
+          closeEmojiPicker();
+        }
+      });
+
+      // Prevent closing when clicking inside the picker
+      const emojiPicker = document.getElementById("emojiPicker");
+      if (emojiPicker) {
+        emojiPicker.addEventListener("click", (e) => {
+          e.stopPropagation();
+        });
+      }
+
+      // Initialize close button on page load
+      initializeCloseButton();
+    }
+
     // Search functionality
     const searchInput = document.getElementById("searchInput");
     if (searchInput) {
       searchInput.addEventListener("input", (e) => {
         this.filterUsers(e.target.value);
+      });
+    }
+
+    // Logout button
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", () => {
+        console.log("Logout button clicked");
+        if (this.socket) {
+          this.socket.disconnect();
+        }
+        window.authService.logout();
       });
     }
 
@@ -159,14 +536,11 @@ class ChatService {
     const closeSettings = document.getElementById("closeSettings");
     const displayNameForm = document.getElementById("displayNameForm");
     const displayNameInput = document.getElementById("displayName");
-    const logoutBtn = document.getElementById("logoutBtn");
 
     // Open modal
     if (settingsBtn && settingsModal) {
       settingsBtn.addEventListener("click", () => {
-        console.log("Settings button clicked"); // DEBUG LOG
-        settingsModal.classList.remove("hidden");
-        settingsModal.classList.add("flex");
+        settingsModal.style.display = "block";
         // Set current display name
         if (displayNameInput && window.authService?.getUser()) {
           displayNameInput.value = window.authService.getUser().username;
@@ -176,22 +550,19 @@ class ChatService {
     // Close modal
     if (closeSettings && settingsModal) {
       closeSettings.addEventListener("click", () => {
-        settingsModal.classList.remove("flex");
-        settingsModal.classList.add("hidden");
+        settingsModal.style.display = "none";
       });
     }
     // Save display name
     if (displayNameForm && displayNameInput) {
-      displayNameForm.addEventListener("submit", async (e) => {
+      displayNameForm.addEventListener("submit", (e) => {
         e.preventDefault();
         const newName = displayNameInput.value.trim();
         if (!newName) return;
-        // Update display name in localStorage and in-memory
         const user = window.authService.getUser();
         if (user) {
           user.username = newName;
           localStorage.setItem("user", JSON.stringify(user));
-          // Optionally, update on server via API (not implemented here)
           this.currentUser = user;
           this.updateUI();
           this.renderUserList();
@@ -199,16 +570,7 @@ class ChatService {
             this.updateChatHeader();
           }
         }
-        settingsModal.classList.add("hidden");
-      });
-    }
-    // Logout
-    if (logoutBtn) {
-      logoutBtn.addEventListener("click", () => {
-        if (this.socket) {
-          this.socket.disconnect();
-        }
-        window.authService.logout();
+        settingsModal.style.display = "none";
       });
     }
   }
@@ -218,39 +580,25 @@ class ChatService {
     const messageInput = document.getElementById("messageInput");
     const content = messageInput.value.trim();
 
-    console.log("Content:", content);
-    console.log("Current chat user:", this.currentChatUser);
-    console.log("Socket connected:", this.socket?.connected);
-
-    if (!content) {
-      console.log("No content to send");
+    if (!content || !this.currentChatUser || !this.socket?.connected) {
+      console.log("Cannot send message - missing content, user, or socket");
       return;
     }
 
-    if (!this.currentChatUser) {
-      console.log("No current chat user selected");
-      return;
-    }
-
-    if (!this.socket?.connected) {
-      console.log("Socket not connected");
-      return;
-    }
-
-    console.log("Sending message:", {
+    const messageData = {
       content,
       receiverId: this.currentChatUser.id,
       type: "text",
-    });
+    };
 
-    this.socket.emit("message", {
-      content,
-      receiverId: this.currentChatUser.id,
-      type: "text",
-    });
+    console.log("Sending message:", messageData);
 
+    // Clear input immediately
     messageInput.value = "";
     this.stopTyping();
+
+    // Send message through socket
+    this.socket.emit("message", messageData);
   }
 
   handleTyping() {
@@ -289,10 +637,15 @@ class ChatService {
 
     this.currentChatUser = user;
     console.log("Selected user:", user);
-    this.loadMessages(userId);
+
+    // Load messages for this user
+    this.loadMessages(userId).then(() => {
+      this.renderMessages();
+    });
+
     this.updateChatHeader();
     this.joinChat(userId);
-    this.updateUI(); // Ensure input field is shown
+    this.updateUI();
   }
 
   joinChat(userId) {
@@ -305,10 +658,41 @@ class ChatService {
     const userListContainer = document.querySelector(".chat-list");
     if (!userListContainer) return;
 
-    userListContainer.innerHTML = this.users
-      .filter((user) => user.id !== this.currentUser.id) // Don't show current user in list
+    // Get all users except current user
+    const otherUsers = this.users.filter(
+      (user) => user.id !== this.currentUser.id
+    );
+
+    // Get latest message timestamp for each user
+    const userLastMessages = otherUsers.map((user) => {
+      const messages = this.messages.filter(
+        (msg) =>
+          (msg.senderId === user.id &&
+            msg.receiverId === this.currentUser.id) ||
+          (msg.senderId === this.currentUser.id && msg.receiverId === user.id)
+      );
+      const latestMessage =
+        messages.length > 0
+          ? messages.reduce((latest, msg) =>
+              new Date(msg.timestamp) > new Date(latest.timestamp)
+                ? msg
+                : latest
+            )
+          : null;
+      return {
+        user,
+        lastMessageTime: latestMessage
+          ? new Date(latestMessage.timestamp)
+          : new Date(0),
+      };
+    });
+
+    // Sort users by latest message timestamp, most recent first
+    userLastMessages.sort((a, b) => b.lastMessageTime - a.lastMessageTime);
+
+    userListContainer.innerHTML = userLastMessages
       .map(
-        (user) => `
+        ({ user }) => `
       <div class="mb-2 user-list-item" data-user-id="${user.id}">
         <div class="flex items-center p-3 hover:bg-chat-gray rounded-xl transition-all duration-200 cursor-pointer group border border-transparent hover:border-chat-blue hover:border-opacity-20">
           <div class="relative">
@@ -368,7 +752,12 @@ class ChatService {
       return;
     }
 
-    messagesContainer.innerHTML = this.messages
+    // Sort messages by timestamp
+    const sortedMessages = [...this.messages].sort(
+      (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+    );
+
+    messagesContainer.innerHTML = sortedMessages
       .map((message) => {
         const isOwnMessage = message.senderId === this.currentUser.id;
         const sender = isOwnMessage ? this.currentUser : this.currentChatUser;
@@ -396,7 +785,9 @@ class ChatService {
             } rounded-2xl ${
           isOwnMessage ? "rounded-tr-md" : "rounded-tl-md"
         } px-4 py-3 shadow-lg">
-              <p class="text-white">${this.escapeHtml(message.content)}</p>
+              <p class="text-white break-words">${this.escapeHtml(
+                message.content
+              )}</p>
             </div>
             <span class="text-xs text-gray-400 mt-1 ${
               isOwnMessage ? "mr-2" : "ml-2"
@@ -416,6 +807,7 @@ class ChatService {
       })
       .join("");
 
+    // Scroll to bottom
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
   }
 
@@ -425,7 +817,7 @@ class ChatService {
     const header = document.querySelector(".chat-header");
     if (header) {
       header.innerHTML = `
-        <div class="flex items-center justify-between">
+        <div class="flex items-center">
           <div class="flex items-center gap-4">
             <div class="relative">
               <div class="w-12 h-12 bg-gradient-to-br from-chat-blue to-chat-blue-light rounded-full flex items-center justify-center font-semibold text-white shadow-lg">
@@ -449,17 +841,6 @@ class ChatService {
         this.currentChatUser.status === "online" ? "Active now" : "Offline"
       }</p>
             </div>
-          </div>
-          <div class="flex items-center gap-3">
-            <button class="w-10 h-10 bg-chat-dark hover:bg-chat-gray rounded-lg border border-chat-border transition-all duration-200 flex items-center justify-center group">
-              <i class="fas fa-phone text-gray-400 group-hover:text-white transition-colors"></i>
-            </button>
-            <button class="w-10 h-10 bg-chat-dark hover:bg-chat-gray rounded-lg border border-chat-border transition-all duration-200 flex items-center justify-center group">
-              <i class="fas fa-video text-gray-400 group-hover:text-white transition-colors"></i>
-            </button>
-            <button class="w-10 h-10 bg-chat-dark hover:bg-chat-gray rounded-lg border border-chat-border transition-all duration-200 flex items-center justify-center group">
-              <i class="fas fa-ellipsis-v text-gray-400 group-hover:text-white transition-colors"></i>
-            </button>
           </div>
         </div>
       `;
@@ -496,7 +877,7 @@ class ChatService {
       const messagesContainer = document.querySelector(".chat-messages");
       if (messagesContainer) {
         messagesContainer.innerHTML = `
-          <div style="position: absolute; top: 50%; left: 62%; transform: translate(-50%, -50%); width: 100%;">
+          <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%;">
             <div class="flex flex-col items-center justify-center w-full">
               <i class="fas fa-users text-4xl mb-4"></i>
               <p class="text-center text-gray-400 text-lg">Select a user to start chatting</p>

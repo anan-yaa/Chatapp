@@ -116,11 +116,6 @@
       .border-opacity-20 {
         --tw-border-opacity: 0.2;
       }
-      #settingsModal {
-        display: flex !important;
-        opacity: 1 !important;
-        pointer-events: auto !important;
-      }
     </style>
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
@@ -248,13 +243,6 @@
           class="message-input-container p-6 border-t border-chat-border bg-chat-gray bg-opacity-50 backdrop-blur-sm"
         >
           <div class="flex items-center gap-4">
-            <button
-              class="w-10 h-10 bg-chat-dark hover:bg-chat-gray rounded-lg border border-chat-border transition-all duration-200 flex items-center justify-center group"
-            >
-              <i
-                class="fas fa-paperclip text-gray-400 group-hover:text-white transition-colors"
-              ></i>
-            </button>
             <div class="flex-1 relative">
               <input
                 type="text"
@@ -270,14 +258,95 @@
               </button>
             </div>
             <button
+              id="emojiButton"
               class="w-10 h-10 bg-chat-dark hover:bg-chat-gray rounded-lg border border-chat-border transition-all duration-200 flex items-center justify-center group"
             >
               <i
                 class="fas fa-smile text-gray-400 group-hover:text-white transition-colors"
               ></i>
             </button>
+            <!-- Emoji Picker -->
+            <div
+              id="emojiPicker"
+              class="fixed bg-chat-dark border border-chat-border rounded-xl shadow-xl hidden overflow-hidden"
+              style="z-index: 1000; width: 320px"
+            >
+              <!-- Header with close button -->
+              <div
+                class="flex justify-between items-center p-2 border-b border-chat-border bg-chat-darker"
+              >
+                <span class="text-gray-400 text-sm font-medium">Emojis</span>
+                <button
+                  id="closeEmojiPicker"
+                  class="text-gray-400 hover:text-white transition-colors"
+                >
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <!-- Emoji Categories -->
+              <div class="flex border-b border-chat-border">
+                <button
+                  class="emoji-category-btn active p-2 flex-1 text-gray-400 hover:text-white text-sm font-medium transition-colors"
+                  data-category="smileys"
+                >
+                  <i class="fas fa-smile"></i>
+                </button>
+                <button
+                  class="emoji-category-btn p-2 flex-1 text-gray-400 hover:text-white text-sm font-medium transition-colors"
+                  data-category="gestures"
+                >
+                  <i class="fas fa-hand-peace"></i>
+                </button>
+                <button
+                  class="emoji-category-btn p-2 flex-1 text-gray-400 hover:text-white text-sm font-medium transition-colors"
+                  data-category="hearts"
+                >
+                  <i class="fas fa-heart"></i>
+                </button>
+              </div>
+              <!-- Emoji Grid Container -->
+              <div
+                class="emoji-grid p-2 grid grid-cols-8 gap-1 max-h-[200px] overflow-y-auto custom-scrollbar"
+              ></div>
+            </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div
+      id="settingsModal"
+      class="fixed inset-0 z-50 hidden bg-black bg-opacity-60"
+      style="display: none"
+    >
+      <div
+        class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white text-black rounded-2xl shadow-lg w-full max-w-md p-8 relative border border-gray-300"
+      >
+        <button
+          id="closeSettings"
+          class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl focus:outline-none transition-colors"
+        >
+          &times;
+        </button>
+        <h2 class="text-2xl font-bold mb-6 text-white">Settings</h2>
+        <form id="displayNameForm" class="mb-6">
+          <label for="displayName" class="block text-gray-300 mb-2"
+            >Display Name</label
+          >
+          <input
+            type="text"
+            id="displayName"
+            name="displayName"
+            class="w-full px-4 py-2 rounded-lg bg-chat-gray border border-chat-border text-white focus:outline-none focus:ring-2 focus:ring-chat-blue focus:border-transparent transition-all duration-200"
+          />
+          <button
+            type="submit"
+            class="mt-4 w-full bg-chat-blue hover:bg-chat-blue-light text-white font-semibold py-2 rounded-lg transition-colors duration-200"
+          >
+            Save Changes
+          </button>
+        </form>
       </div>
     </div>
 
@@ -290,41 +359,5 @@
     <!-- Auth and Chat scripts -->
     <script src="/js/auth.js"></script>
     <script src="/js/chat.js"></script>
-
-    <!-- Settings Modal -->
-    <div
-      id="settingsModal"
-      class="fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-60 hidden"
-    >
-      <div
-        class="bg-chat-gray rounded-2xl shadow-lg w-full max-w-md p-8 relative border border-chat-border"
-      >
-        <button
-          id="closeSettings"
-          class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl focus:outline-none"
-        >
-          <i class="fas fa-times"></i>
-        </button>
-        <h2 class="text-2xl font-bold mb-6 text-white">Settings</h2>
-        <form id="displayNameForm" class="mb-6">
-          <label for="displayName" class="block text-gray-300 mb-2"
-            >Display Name</label
-          >
-          <input
-            type="text"
-            id="displayName"
-            name="displayName"
-            class="w-full px-4 py-2 rounded-lg bg-chat-dark border border-chat-border text-white focus:outline-none focus:ring-2 focus:ring-chat-blue"
-          />
-          <button
-            type="submit"
-            class="mt-4 w-full bg-chat-blue hover:bg-chat-blue-light text-white font-semibold py-2 rounded-lg transition-colors"
-          >
-            Save
-          </button>
-        </form>
-        <!-- Logout button removed from modal -->
-      </div>
-    </div>
   </body>
 </html>
