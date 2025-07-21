@@ -17,7 +17,7 @@ class ChatService {
 
     this.currentUser = window.authService.getUser();
     await this.loadUsers();
-    await this.loadAllMessages(); // Load all messages for sorting
+    await this.loadAllMessages(); 
     this.initializeSocket();
     this.setupEventListeners();
     this.updateUI();

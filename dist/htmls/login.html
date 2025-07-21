@@ -70,10 +70,19 @@
     .animate-pulse-slow {
       animation: pulse 3s ease-in-out infinite;
     }
+    .gradient-button {
+      background-size: 200% 100%;
+      background-position: 0 0;
+      transition: background-position .3s ease-in-out;
+      background-image: linear-gradient(to right, #3B82F6 0%, #1E40AF 50%, #1E40AF 50%, #3B82F6 100%);
+    }
+    .gradient-button:hover {
+      background-position: -100% 0;
+    }
   </style>
 </head>
 
-<body class="font-[Roboto_Slab] bg-gradient-to-br from-black to-blue-900 min-h-screen relative">
+<body class="font-[Roboto_Slab] bg-gradient-to-br from-black to-blue-900 min-h-screen relative flex flex-col">
   <!--background animation particles-->
   <div class="absolute inset-0 bg-gradient-to-br from-black via-blue-900/50 to-blue-600 animate-pulse-slow"></div>
   <div class="absolute top-1/4 left-1/4 w-20 h-20 bg-blue-500/10 rounded-full blur-xl animate-float"></div>
@@ -107,7 +116,7 @@
   </header>
 
     <!-- heading texts part-->
-  <div class="flex-1 flex items-center justify-center p-4 relative z-10 py-8">
+  <div class="flex-1 flex items-center justify-center p-4 relative z-10">
     <div class="w-full max-w-md animate-slideIn">
       <div class="text-center mb-8">
         <h6 class="text-white mb-2">Let conversations Drift.</h6>
@@ -164,16 +173,9 @@
             </div>
           </div>
 
-          <!-- Forgot Password -->
-          <div class="flex items-center justify-center">
-            <a href="#" class="text-sm text-blue-400 hover:text-blue-300 transition-colors">
-              Forgot password?
-            </a>
-          </div>
-
           <!-- Login Button -->
           <button type="submit"
-            class="w-full bg-gradient-to-r from-blue-500 to-blue-800 text-white font-semibold py-3 px-6 rounded-xl hover:from-blue-600 hover:to-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-800 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-blue-500/25 active:scale-95">
+            class="gradient-button w-full text-white font-semibold py-3 px-6 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-800 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-blue-500/25 active:scale-95">
             Sign In
           </button>
 
@@ -181,7 +183,7 @@
           <div class="mt-6 text-center">
             <p class="text-slate-400">
               Don't have an account?
-              <a href="/signup" class="text-blue-400 hover:text-blue-300 font-medium transition-colors">
+              <a href="/htmls/signup.html" class="text-blue-400 hover:text-blue-200 font-medium transition-colors">
                 Sign up
               </a>
             </p>
@@ -191,7 +193,7 @@
   </div>
 
   <!-- Footer -->
-  <footer class="text-center py-4 text-slate-200 text-sm relative z-10">
+  <footer class="bg-slate-900/80 backdrop-blur-sm border-t border-blue-500/20 p-4 text-center text-slate-200 text-sm relative z-10">
     <p>&copy; 2025 Drift. All rights reserved.</p>
   </footer>
 

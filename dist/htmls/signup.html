@@ -71,6 +71,15 @@
         .animate-pulse-slow {
             animation: pulse 3s ease-in-out infinite;
         }
+        .gradient-button {
+            background-size: 200% 100%;
+            background-position: 0 0;
+            transition: background-position .3s ease-in-out;
+            background-image: linear-gradient(to right, #3B82F6 0%, #1E40AF 50%, #1E40AF 50%, #3B82F6 100%);
+        }
+        .gradient-button:hover {
+            background-position: -100% 0;
+        }
     </style>
 </head>
 
@@ -205,8 +214,8 @@
                     </div>
                     <!-- signup submit button -->
                     <button type="submit"
-                        class="w-full bg-gradient-to-r from-blue-500 to-blue-800 text-white font-semibold py-3 px-6 rounded-xl hover:from-blue-600 hover:to-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-800 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-blue-500/25 active:scale-95">
-                        Sign Up
+                    class="gradient-button w-full text-white font-semibold py-3 px-6 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-800 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-blue-500/25 active:scale-95">
+                        Create Account
                     </button>
 
                     <!-- login anchor link -->
@@ -214,7 +223,7 @@
                         <p class="text-slate-400">
                             Already have an account?
                             <a href="/login" class="text-blue-400 hover:text-white font-medium transition-colors">
-                                Login!
+                                Login
                             </a>
                         </p>
                     </div>
@@ -223,9 +232,9 @@
     </div>
 
     <!-- footer part -->
-    <footer class="text-center py-4 text-slate-200 text-sm relative z-10">
-        <p>&copy; 2025 Drift. All rights reserved.</p>
-    </footer>
+  <footer class="bg-slate-900/80 backdrop-blur-sm border-t border-blue-500/20 p-4 text-center text-slate-200 text-sm relative z-10">
+    <p>&copy; 2025 Drift. All rights reserved.</p>
+  </footer>
 
     <script src="/js/auth.js"></script>
     <script>
