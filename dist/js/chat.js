@@ -21,6 +21,13 @@ class ChatService {
     this.initializeSocket();
     this.setupEventListeners();
     this.updateUI();
+
+    // Ensure emoji picker is hidden on initialization
+    const emojiPicker = document.getElementById("emojiPicker");
+    if (emojiPicker) {
+      emojiPicker.classList.add("hidden");
+      emojiPicker.style.display = "none";
+    }
   }
 
   async loadUsers() {
@@ -379,6 +386,16 @@ class ChatService {
         const emojiPicker = document.getElementById("emojiPicker");
         if (emojiPicker) {
           emojiPicker.classList.add("hidden");
+          emojiPicker.style.display = "none";
+        }
+      };
+
+      const openEmojiPicker = () => {
+        const emojiPicker = document.getElementById("emojiPicker");
+        if (emojiPicker) {
+          emojiPicker.classList.remove("hidden");
+          emojiPicker.style.display = "block";
+          renderEmojiGrid(currentCategory);
         }
       };
 
@@ -441,29 +458,12 @@ class ChatService {
       emojiButton.addEventListener("click", (e) => {
         e.stopPropagation();
         const emojiPicker = document.getElementById("emojiPicker");
-        const isVisible = !emojiPicker.classList.contains("hidden");
+        const isVisible = emojiPicker.style.display === "block";
 
         if (isVisible) {
           closeEmojiPicker();
         } else {
-          // Show picker and render initial category
-          emojiPicker.classList.remove("hidden");
-          renderEmojiGrid(currentCategory);
-
-          // Position the picker above the input area
-          const buttonRect = emojiButton.getBoundingClientRect();
-          const pickerHeight = 300; // Approximate height of picker
-
-          // Calculate position to appear above the input
-          emojiPicker.style.bottom = `${
-            window.innerHeight - buttonRect.top + 10
-          }px`;
-          emojiPicker.style.right = `${
-            window.innerWidth - buttonRect.right + 30
-          }px`;
-
-          // Initialize close button after showing the picker
-          setTimeout(initializeCloseButton, 0);
+          openEmojiPicker();
         }
       });
 

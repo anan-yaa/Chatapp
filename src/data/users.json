@@ -44,15 +44,15 @@
     "password": "$2a$10$Z15LmUjvtuEo0hyioiJ2OuBO5Yoa5CNqIqxk4/xL6tkhpja7jNy0u",
     "username": "test1",
     "status": "online",
-    "lastSeen": "2025-07-20T05:54:30.595Z",
+    "lastSeen": "2025-07-20T06:54:17.079Z",
     "id": "181unzlp7mdb8pebl"
   },
   {
     "email": "test2@example.com",
     "password": "$2a$10$sdG..BophFSJphyvD7ACk.j2BTwObUtopxti.bW2sTIgclHYQJfAq",
     "username": "test2",
-    "status": "online",
-    "lastSeen": "2025-07-20T05:49:33.561Z",
+    "status": "offline",
+    "lastSeen": "2025-07-20T06:54:22.734Z",
     "id": "lwnvwwi54mdb8qce9"
   }
 ]
