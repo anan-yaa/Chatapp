@@ -94,10 +94,12 @@ window.authService = new AuthService();
 
 // Utility function to create/show/hide error divs scoped inside a form container
 function getOrCreateErrorDiv(form) {
-  let errorDiv = form.querySelector(".error-message");
+  // Try to find existing error message div by id "error-message"
+  let errorDiv = form.querySelector("#error-message");
   if (!errorDiv) {
     errorDiv = document.createElement("div");
-    errorDiv.className = "error-message text-red-500 text-sm mt-2 text-center";
+    errorDiv.id = "error-message";
+    errorDiv.className = "text-red-500 text-sm mt-2 text-center";
     form.insertBefore(errorDiv, form.firstChild);
   }
   return errorDiv;
@@ -106,12 +108,12 @@ function getOrCreateErrorDiv(form) {
 function showError(message, form) {
   const errorDiv = getOrCreateErrorDiv(form);
   errorDiv.textContent = message;
-  errorDiv.style.display = "block";
+  errorDiv.classList.remove("hidden");
 }
 
 function hideError(form) {
-  const errorDiv = form.querySelector(".error-message");
-  if (errorDiv) errorDiv.style.display = "none";
+  const errorDiv = form.querySelector("#error-message");
+  if (errorDiv) errorDiv.classList.add("hidden");
 }
 
 // Login form handler

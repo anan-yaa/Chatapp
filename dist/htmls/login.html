@@ -4,26 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Login - Drift</title>
-  <link rel="icon" type="image/png" href="./images/favicon-v2.png" />
-  
-  <!-- Fonts -->
+  <link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
+  <link rel="shortcut icon" href="/images/favicon.ico" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100..900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Double:wght@100..900&display=swap" rel="stylesheet" />
-  
-  <!-- Tailwind or your CSS -->
   <link rel="stylesheet" href="/output.css" />
-  
-  <!-- Font Awesome CDN for eye icons -->
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
     crossorigin="anonymous"
     referrerpolicy="no-referrer"
   />
-
   <style>
-    /* Your existing animations and styling */
     @keyframes float {0%,100%{transform:translateY(0px);opacity:.3;}50%{transform:translateY(-20px);opacity:.8;}}
     @keyframes glow {0%{box-shadow:0 0 5px rgba(59,130,246,.3);}100%{box-shadow:0 0 20px rgba(59,130,246,.6);}}
     @keyframes slideIn {0%{transform:translateY(30px);opacity:0;}100%{transform:translateY(0);opacity:1;}}
@@ -37,11 +30,11 @@
     .gradient-button:hover {background-position:-100% 0;}
     .password-toggle {
       cursor: pointer;
-      color: #94a3b8; /* slate-400 */
+      color: #94a3b8;
       transition: color 0.3s ease;
     }
     .password-toggle:hover {
-      color: #3b82f6; /* blue-500 */
+      color: #3b82f6;
     }
   </style>
 </head>
@@ -80,7 +73,7 @@
   <!-- header -->
   <header class="bg-slate-900/80 backdrop-blur-sm border-b border-blue-500/20 p-4 relative z-10 animate-fadeIn">
     <div class="flex items-center gap-3">
-      <img src="images/Drift.png" alt="Transparent logo of Drift" class="w-18 h-8 shadow-md" />
+  ent logo" class="w-18 h-8 shadow-md" />
     </div>
   </header>
 
@@ -151,11 +144,12 @@
   </div>
 
   <!-- footer -->
-  <footer class="bg-slate-900/80 backdrop-blur-sm border-t border-blue-500/20 p-4 text-center text-slate-200 text-sm relative z-10">
+  <footer class="bg-slate-900/80 backdrop-blur-sm border-t border-blue-500/20  p-4 text-center text-slate-200 text-sm relative z-10">
     <p>&copy; 2025 Drift. All rights reserved.</p>
   </footer>
 
   <!-- password toggle script -->
   <script src="/js/password-toggle.js"></script>
+  <script src="/js/auth.js"></script>
 </body>
 </html>

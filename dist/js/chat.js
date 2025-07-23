@@ -877,7 +877,7 @@ class ChatService {
       const messagesContainer = document.querySelector(".chat-messages");
       if (messagesContainer) {
         messagesContainer.innerHTML = `
-          <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%;">
+          <div style="position: absolute; top: 50%; left: 62%; transform: translate(-50%, -50%); width: 100%;">
             <div class="flex flex-col items-center justify-center w-full">
               <i class="fas fa-users text-4xl mb-4"></i>
               <p class="text-center text-gray-400 text-lg">Select a user to start chatting</p>
