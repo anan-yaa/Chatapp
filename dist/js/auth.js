@@ -92,26 +92,50 @@ class AuthService {
 // Global auth service instance
 window.authService = new AuthService();
 
+// Utility function to create/show/hide error divs scoped inside a form container
+function getOrCreateErrorDiv(form) {
+  let errorDiv = form.querySelector(".error-message");
+  if (!errorDiv) {
+    errorDiv = document.createElement("div");
+    errorDiv.className = "error-message text-red-500 text-sm mt-2 text-center";
+    form.insertBefore(errorDiv, form.firstChild);
+  }
+  return errorDiv;
+}
+
+function showError(message, form) {
+  const errorDiv = getOrCreateErrorDiv(form);
+  errorDiv.textContent = message;
+  errorDiv.style.display = "block";
+}
+
+function hideError(form) {
+  const errorDiv = form.querySelector(".error-message");
+  if (errorDiv) errorDiv.style.display = "none";
+}
+
 // Login form handler
-if (document.getElementById("loginForm")) {
-  document.getElementById("loginForm").addEventListener("submit", async (e) => {
+const loginForm = document.getElementById("loginForm");
+if (loginForm) {
+  loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    const submitBtn = document.querySelector('button[type="submit"]');
-    const errorDiv =
-      document.getElementById("error-message") || createErrorDiv();
+    const email = loginForm.email.value.trim();
+    const password = loginForm.password.value.trim();
+    const submitBtn = loginForm.querySelector('button[type="submit"]');
+
+    hideError(loginForm);
 
     try {
       submitBtn.disabled = true;
       submitBtn.textContent = "Signing In...";
-      hideError();
 
       await authService.login(email, password);
+
+      // Redirect on successful login
       window.location.href = "/";
     } catch (error) {
-      showError(error.message);
+      showError(error.message, loginForm);
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = "Sign In";
@@ -120,78 +144,56 @@ if (document.getElementById("loginForm")) {
 }
 
 // Signup form handler
-if (document.getElementById("signupForm")) {
-  document
-    .getElementById("signupForm")
-    .addEventListener("submit", async (e) => {
-      e.preventDefault();
+const signupForm = document.getElementById("signupForm");
+if (signupForm) {
+  signupForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-      const email = document.getElementById("email").value;
-      const username = document.getElementById("username").value;
-      const password = document.getElementById("password").value;
-      const confirmPassword = document.getElementById("confirmPassword").value;
-      const submitBtn = document.querySelector('button[type="submit"]');
-      const errorDiv =
-        document.getElementById("error-message") || createErrorDiv();
+    const email = signupForm.email.value.trim();
+    const username = signupForm.username.value.trim();
+    const password = signupForm.password.value.trim();
+    const confirmPassword = signupForm.confirmPassword.value.trim();
+    const submitBtn = signupForm.querySelector('button[type="submit"]');
 
-      if (password !== confirmPassword) {
-        showError("Passwords do not match");
-        return;
-      }
+    hideError(signupForm);
 
-      try {
-        submitBtn.disabled = true;
-        submitBtn.textContent = "Creating Account...";
-        hideError();
+    if (password !== confirmPassword) {
+      showError("Passwords do not match", signupForm);
+      return;
+    }
 
-        await authService.register(email, password, username);
-        window.location.href = "/";
-      } catch (error) {
-        showError(error.message);
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Sign Up";
-      }
-    });
+    try {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Creating Account...";
+
+      await authService.register(email, password, username);
+
+      // Redirect on successful signup
+      window.location.href = "/";
+    } catch (error) {
+      showError(error.message, signupForm);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Sign Up";
+    }
+  });
 }
 
-function createErrorDiv() {
-  const errorDiv = document.createElement("div");
-  errorDiv.id = "error-message";
-  errorDiv.className = "text-red-500 text-sm mt-2 text-center";
-  const form = document.querySelector("form");
-  form.insertBefore(errorDiv, form.firstChild);
-  return errorDiv;
-}
-
-function showError(message) {
-  const errorDiv = document.getElementById("error-message");
-  if (errorDiv) {
-    errorDiv.textContent = message;
-    errorDiv.style.display = "block";
-  }
-}
-
-function hideError() {
-  const errorDiv = document.getElementById("error-message");
-  if (errorDiv) {
-    errorDiv.style.display = "none";
-  }
-}
-
-// Check authentication on page load
+// On page load: redirect based on auth status & page
 document.addEventListener("DOMContentLoaded", () => {
-  // If user is authenticated and on login/signup page, redirect to chat
+  const pathname = window.location.pathname;
+
   if (
     authService.isAuthenticated() &&
-    (window.location.pathname === "/login" ||
-      window.location.pathname === "/signup")
+    (pathname === "/login" || pathname === "/signup")
   ) {
     window.location.href = "/";
   }
 
-  // If user is not authenticated and on chat page, redirect to login
-  if (!authService.isAuthenticated() && window.location.pathname === "/") {
+  if (
+    !authService.isAuthenticated() &&
+    (pathname === "/" || pathname === "/chat")
+  ) {
     window.location.href = "/login";
   }
 });
