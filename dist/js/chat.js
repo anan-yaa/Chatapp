@@ -108,7 +108,13 @@ class ChatService {
     });
 
     this.socket.on("connect", () => {
-      console.log("Connected to server");
+      console.log("Connected to server via Socket.IO");
+      // Join all existing conversations on reconnect
+      if (this.users && this.users.length > 0) {
+        this.users.forEach((user) => {
+          this.socket.emit("join", user.id);
+        });
+      }
     });
 
     this.socket.on("connect_error", (error) => {
@@ -123,14 +129,41 @@ class ChatService {
     this.socket.on("message", (message) => {
       console.log("New message received:", message);
 
-      // If this is for the current chat, add to messages and render
-      if (
-        this.currentChatUser &&
-        (message.senderId === this.currentChatUser.id ||
-          message.receiverId === this.currentChatUser.id)
-      ) {
-        this.messages.push(message);
-        this.renderMessages();
+      // Check if message is between current user and another user
+      const isRelevantMessage =
+        message.senderId === this.currentUser.id ||
+        message.receiverId === this.currentUser.id;
+
+      if (isRelevantMessage) {
+        // Check if message already exists (prevent duplicates)
+        const messageExists = this.messages.some(
+          (msg) => msg.id === message.id
+        );
+
+        if (!messageExists) {
+          this.messages.push(message);
+          
+          // If this is for the current chat, render immediately for real-time update
+          if (
+            this.currentChatUser &&
+            (message.senderId === this.currentChatUser.id ||
+              message.receiverId === this.currentChatUser.id)
+          ) {
+            // Render immediately for instant feedback
+            this.renderMessages();
+          }
+        } else {
+          // Message exists, might be a duplicate - refresh from server to ensure consistency
+          if (
+            this.currentChatUser &&
+            (message.senderId === this.currentChatUser.id ||
+              message.receiverId === this.currentChatUser.id)
+          ) {
+            this.loadMessages(this.currentChatUser.id).then(() => {
+              this.renderMessages();
+            });
+          }
+        }
       }
 
       // Always update the user list to reflect new message order

@@ -1,3 +1,4 @@
+import dotenv from "dotenv";
 import express from "express";
 import http from "http";
 import cors from "cors";
@@ -7,6 +8,10 @@ import path from "path";
 import authRoutes from "./routes/auth";
 import chatRoutes from "./routes/chat";
 import { SocketService } from "./services/socket";
+import { connectDB, disconnectDB } from "./utils/mongodb";
+
+// Load environment variables from .env file
+dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
@@ -54,6 +59,19 @@ app.get("/signup", (req, res) => {
   res.sendFile(path.join(__dirname, "../dist/htmls/signup.html"));
 });
 
+// Also serve HTML files directly from /htmls/ path
+app.get("/htmls/signup.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "../dist/htmls/signup.html"));
+});
+
+app.get("/htmls/login.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "../dist/htmls/login.html"));
+});
+
+app.get("/htmls/index.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "../dist/htmls/index.html"));
+});
+
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../dist/htmls/index.html"));
 });
@@ -64,6 +82,12 @@ app.get("/test", (req, res) => {
 
 app.get("/bots", (req, res) => {
   res.sendFile(path.join(__dirname, "../dist/bots.html"));
+});
+
+// Initialize MongoDB connection
+connectDB().catch((error) => {
+  console.error("Failed to connect to MongoDB:", error);
+  process.exit(1);
 });
 
 // Initialize Socket.IO
@@ -88,7 +112,7 @@ app.use("*", (req, res) => {
 });
 
 // Start server
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📱 Chat app available at http://localhost:${PORT}`);
   console.log(`🔐 Login page: http://localhost:${PORT}/login`);
@@ -96,16 +120,20 @@ server.listen(PORT, () => {
 });
 
 // Graceful shutdown
-process.on("SIGTERM", () => {
+process.on("SIGTERM", async () => {
   console.log("SIGTERM received, shutting down gracefully");
-  server.close(() => {
+  server.close(async () => {
+    await disconnectDB();
     console.log("Process terminated");
+    process.exit(0);
   });
 });
 
-process.on("SIGINT", () => {
+process.on("SIGINT", async () => {
   console.log("SIGINT received, shutting down gracefully");
-  server.close(() => {
+  server.close(async () => {
+    await disconnectDB();
     console.log("Process terminated");
+    process.exit(0);
   });
 });

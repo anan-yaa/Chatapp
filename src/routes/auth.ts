@@ -22,7 +22,7 @@ router.post("/register", async (req: Request, res: Response) => {
     }
 
     // Check if user already exists
-    const existingUser = Database.findUserByEmail(email);
+    const existingUser = await Database.findUserByEmail(email);
     if (existingUser) {
       return res.status(409).json({ error: "User already exists" });
     }
@@ -31,7 +31,7 @@ router.post("/register", async (req: Request, res: Response) => {
     const hashedPassword = await Auth.hashPassword(password);
 
     // Create user
-    const user = Database.createUser({
+    const user = await Database.createUser({
       email,
       password: hashedPassword,
       username,
@@ -72,7 +72,7 @@ router.post("/login", async (req: Request, res: Response) => {
     }
 
     // Find user
-    const user = Database.findUserByEmail(email);
+    const user = await Database.findUserByEmail(email);
     if (!user) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
@@ -84,7 +84,7 @@ router.post("/login", async (req: Request, res: Response) => {
     }
 
     // Update user status
-    Database.updateUser(user.id, { status: "online", lastSeen: new Date() });
+    await Database.updateUser(user.id, { status: "online", lastSeen: new Date() });
 
     // Generate token
     const token = Auth.generateToken(user);

@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const dotenv_1 = __importDefault(require("dotenv"));
 const express_1 = __importDefault(require("express"));
 const http_1 = __importDefault(require("http"));
 const cors_1 = __importDefault(require("cors"));
@@ -12,6 +13,9 @@ const path_1 = __importDefault(require("path"));
 const auth_1 = __importDefault(require("./routes/auth"));
 const chat_1 = __importDefault(require("./routes/chat"));
 const socket_1 = require("./services/socket");
+const mongodb_1 = require("./utils/mongodb");
+// Load environment variables from .env file
+dotenv_1.default.config();
 const app = (0, express_1.default)();
 const server = http_1.default.createServer(app);
 const PORT = process.env.PORT || 3000;
@@ -47,8 +51,29 @@ app.get("/login", (req, res) => {
 app.get("/signup", (req, res) => {
     res.sendFile(path_1.default.join(__dirname, "../dist/htmls/signup.html"));
 });
+// Also serve HTML files directly from /htmls/ path
+app.get("/htmls/signup.html", (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, "../dist/htmls/signup.html"));
+});
+app.get("/htmls/login.html", (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, "../dist/htmls/login.html"));
+});
+app.get("/htmls/index.html", (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, "../dist/htmls/index.html"));
+});
 app.get("/", (req, res) => {
     res.sendFile(path_1.default.join(__dirname, "../dist/htmls/index.html"));
+});
+app.get("/test", (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, "../dist/test.html"));
+});
+app.get("/bots", (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, "../dist/bots.html"));
+});
+// Initialize MongoDB connection
+(0, mongodb_1.connectDB)().catch((error) => {
+    console.error("Failed to connect to MongoDB:", error);
+    process.exit(1);
 });
 // Initialize Socket.IO
 const socketService = new socket_1.SocketService(server);
@@ -62,23 +87,27 @@ app.use("*", (req, res) => {
     res.status(404).json({ error: "Route not found" });
 });
 // Start server
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📱 Chat app available at http://localhost:${PORT}`);
     console.log(`🔐 Login page: http://localhost:${PORT}/login`);
     console.log(`📝 Signup page: http://localhost:${PORT}/signup`);
 });
 // Graceful shutdown
-process.on("SIGTERM", () => {
+process.on("SIGTERM", async () => {
     console.log("SIGTERM received, shutting down gracefully");
-    server.close(() => {
+    server.close(async () => {
+        await (0, mongodb_1.disconnectDB)();
         console.log("Process terminated");
+        process.exit(0);
     });
 });
-process.on("SIGINT", () => {
+process.on("SIGINT", async () => {
     console.log("SIGINT received, shutting down gracefully");
-    server.close(() => {
+    server.close(async () => {
+        await (0, mongodb_1.disconnectDB)();
         console.log("Process terminated");
+        process.exit(0);
     });
 });
 //# sourceMappingURL=server.js.map

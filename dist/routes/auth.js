@@ -18,14 +18,14 @@ router.post("/register", async (req, res) => {
                 .json({ error: "Password must be at least 6 characters" });
         }
         // Check if user already exists
-        const existingUser = database_1.Database.findUserByEmail(email);
+        const existingUser = await database_1.Database.findUserByEmail(email);
         if (existingUser) {
             return res.status(409).json({ error: "User already exists" });
         }
         // Hash password
         const hashedPassword = await auth_1.Auth.hashPassword(password);
         // Create user
-        const user = database_1.Database.createUser({
+        const user = await database_1.Database.createUser({
             email,
             password: hashedPassword,
             username,
@@ -61,7 +61,7 @@ router.post("/login", async (req, res) => {
             return res.status(400).json({ error: "Email and password are required" });
         }
         // Find user
-        const user = database_1.Database.findUserByEmail(email);
+        const user = await database_1.Database.findUserByEmail(email);
         if (!user) {
             return res.status(401).json({ error: "Invalid credentials" });
         }
@@ -71,7 +71,7 @@ router.post("/login", async (req, res) => {
             return res.status(401).json({ error: "Invalid credentials" });
         }
         // Update user status
-        database_1.Database.updateUser(user.id, { status: "online", lastSeen: new Date() });
+        await database_1.Database.updateUser(user.id, { status: "online", lastSeen: new Date() });
         // Generate token
         const token = auth_1.Auth.generateToken(user);
         const response = {

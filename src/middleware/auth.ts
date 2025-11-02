@@ -10,11 +10,11 @@ export interface AuthenticatedRequest extends Request {
   };
 }
 
-export const authenticateToken = (
+export const authenticateToken = async (
   req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
-): void => {
+): Promise<void> => {
   const authHeader = req.headers.authorization;
   const token = Auth.extractTokenFromHeader(authHeader || "");
 
@@ -30,7 +30,7 @@ export const authenticateToken = (
   }
 
   // Verify user still exists in database
-  const user = Database.findUserById(decoded.userId);
+  const user = await Database.findUserById(decoded.userId);
   if (!user) {
     res.status(403).json({ error: "User not found" });
     return;

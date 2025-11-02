@@ -18,15 +18,17 @@ export class SocketService {
       },
     });
 
-    // Initialize bot service
-    BotService.initialize();
+    // Initialize bot service (async, but we don't need to wait)
+    BotService.initialize().catch((error) => {
+      console.error("Error initializing bot service:", error);
+    });
 
     this.setupMiddleware();
     this.setupEventHandlers();
   }
 
   private setupMiddleware(): void {
-    this.io.use((socket, next) => {
+    this.io.use(async (socket, next) => {
       const token = socket.handshake.auth.token;
 
       if (!token) {
@@ -38,7 +40,7 @@ export class SocketService {
         return next(new Error("Invalid token"));
       }
 
-      const user = Database.findUserById(decoded.userId);
+      const user = await Database.findUserById(decoded.userId);
       if (!user) {
         return next(new Error("User not found"));
       }
@@ -54,7 +56,7 @@ export class SocketService {
   }
 
   private setupEventHandlers(): void {
-    this.io.on("connection", (socket) => {
+    this.io.on("connection", async (socket) => {
       const user = socket.data.user as SocketUser;
 
       console.log(`User connected: ${user.username} (${user.userId})`);
@@ -63,7 +65,7 @@ export class SocketService {
       this.connectedUsers.set(user.userId, user);
 
       // Update user status to online
-      Database.updateUser(user.userId, {
+      await Database.updateUser(user.userId, {
         status: "online",
         lastSeen: new Date(),
       });
@@ -72,7 +74,7 @@ export class SocketService {
       socket.broadcast.emit("userOnline", user.userId);
 
       // Send current user list to the connected user
-      const users = Database.getUsers()
+      const users = (await Database.getUsers())
         .filter((u) => u.id !== user.userId)
         .map((u) => ({
           id: u.id,
@@ -93,10 +95,10 @@ export class SocketService {
       });
 
       // Handle sending messages
-      socket.on("message", (data: ChatMessage) => {
+      socket.on("message", async (data: ChatMessage) => {
         try {
           // Create and save message
-          const message: Message = Database.createMessage({
+          const message: Message = await Database.createMessage({
             content: data.content,
             senderId: user.userId,
             receiverId: data.receiverId,
@@ -106,20 +108,26 @@ export class SocketService {
           // Get receiver's socket info
           const receiverSocket = this.connectedUsers.get(data.receiverId);
 
+          // Use room-based messaging for reliable delivery
+          const roomId = this.getRoomId(user.userId, data.receiverId);
+          
+          // Emit to the room (both sender and receiver will receive if they're in the room)
+          this.io.to(roomId).emit("message", message);
+          
+          // Also send directly to receiver's socket if online (backup)
           if (receiverSocket) {
-            // Send to receiver if online
             this.io.to(receiverSocket.socketId).emit("message", message);
           }
 
-          // Send back to sender for confirmation
+          // Send to sender as well (in case they're not in the room yet)
           socket.emit("message", message);
 
           console.log(
-            `Message sent from ${user.username} to ${data.receiverId}`
+            `Message sent from ${user.username} to ${data.receiverId} (room: ${roomId})`
           );
 
           // Check if receiver is a bot and handle bot response
-          if (BotService.isBotUser(data.receiverId)) {
+          if (await BotService.isBotUser(data.receiverId)) {
             BotService.handleMessage(message, this.io);
           }
         } catch (error) {
@@ -139,14 +147,14 @@ export class SocketService {
       });
 
       // Handle disconnection
-      socket.on("disconnect", () => {
+      socket.on("disconnect", async () => {
         console.log(`User disconnected: ${user.username} (${user.userId})`);
 
         // Remove from connected users
         this.connectedUsers.delete(user.userId);
 
         // Update user status to offline
-        Database.updateUser(user.userId, {
+        await Database.updateUser(user.userId, {
           status: "offline",
           lastSeen: new Date(),
         });

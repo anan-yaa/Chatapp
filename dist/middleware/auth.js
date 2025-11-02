@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.authenticateToken = void 0;
 const auth_1 = require("../utils/auth");
 const database_1 = require("../utils/database");
-const authenticateToken = (req, res, next) => {
+const authenticateToken = async (req, res, next) => {
     const authHeader = req.headers.authorization;
     const token = auth_1.Auth.extractTokenFromHeader(authHeader || "");
     if (!token) {
@@ -16,7 +16,7 @@ const authenticateToken = (req, res, next) => {
         return;
     }
     // Verify user still exists in database
-    const user = database_1.Database.findUserById(decoded.userId);
+    const user = await database_1.Database.findUserById(decoded.userId);
     if (!user) {
         res.status(403).json({ error: "User not found" });
         return;

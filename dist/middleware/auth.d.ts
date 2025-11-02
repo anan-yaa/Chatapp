@@ -6,5 +6,5 @@ export interface AuthenticatedRequest extends Request {
         username: string;
     };
 }
-export declare const authenticateToken: (req: AuthenticatedRequest, res: Response, next: NextFunction) => void;
+export declare const authenticateToken: (req: AuthenticatedRequest, res: Response, next: NextFunction) => Promise<void>;
 //# sourceMappingURL=auth.d.ts.map

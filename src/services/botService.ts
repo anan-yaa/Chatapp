@@ -11,15 +11,15 @@ export class BotService {
   private static bots: Map<string, BotResponse[]> = new Map();
   private static responseTimeouts: Map<string, NodeJS.Timeout> = new Map();
 
-  static initialize() {
+  static async initialize() {
     // Create dummy users if they don't exist
-    this.createDummyUsers();
+    await this.createDummyUsers();
 
     // Set up bot responses
     this.setupBotResponses();
   }
 
-  private static createDummyUsers() {
+  private static async createDummyUsers() {
     const dummyUsers = [
       {
         email: "alice@bot.com",
@@ -63,17 +63,17 @@ export class BotService {
       },
     ];
 
-    const existingUsers = Database.getUsers();
+    const existingUsers = await Database.getUsers();
 
-    dummyUsers.forEach((dummyUser) => {
+    for (const dummyUser of dummyUsers) {
       const existingUser = existingUsers.find(
         (u) => u.email === dummyUser.email
       );
       if (!existingUser) {
-        Database.createUser(dummyUser);
+        await Database.createUser(dummyUser);
         console.log(`🤖 Created bot user: ${dummyUser.username}`);
       }
-    });
+    }
   }
 
   private static setupBotResponses() {
@@ -297,7 +297,7 @@ export class BotService {
 
   static async handleMessage(message: Message, io: any): Promise<void> {
     // Find the bot user by ID
-    const botUser = Database.findUserById(message.receiverId);
+    const botUser = await Database.findUserById(message.receiverId);
     if (!botUser) return;
 
     const botResponses = this.bots.get(botUser.email);
@@ -330,7 +330,7 @@ export class BotService {
     const timeoutId = setTimeout(async () => {
       try {
         // Create bot response message
-        const botMessage = Database.createMessage({
+        const botMessage = await Database.createMessage({
           content: response,
           senderId: message.receiverId,
           receiverId: message.senderId,
@@ -357,13 +357,13 @@ export class BotService {
     return responses[Math.floor(Math.random() * responses.length)];
   }
 
-  static isBotUser(userId: string): boolean {
-    const user = Database.findUserById(userId);
+  static async isBotUser(userId: string): Promise<boolean> {
+    const user = await Database.findUserById(userId);
     return user ? this.bots.has(user.email) : false;
   }
 
-  static getBotUsers(): string[] {
-    const users = Database.getUsers();
+  static async getBotUsers(): Promise<string[]> {
+    const users = await Database.getUsers();
     return users
       .filter((user) => this.bots.has(user.email))
       .map((user) => user.id);

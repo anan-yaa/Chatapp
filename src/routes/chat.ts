@@ -8,9 +8,9 @@ const router = Router();
 router.get(
   "/users",
   authenticateToken,
-  (req: AuthenticatedRequest, res: Response) => {
+  async (req: AuthenticatedRequest, res: Response) => {
     try {
-      const users = Database.getUsers();
+      const users = await Database.getUsers();
       const currentUserId = req.user?.userId;
 
       const filteredUsers = users
@@ -36,7 +36,7 @@ router.get(
 router.get(
   "/messages/:userId",
   authenticateToken,
-  (req: AuthenticatedRequest, res: Response) => {
+  async (req: AuthenticatedRequest, res: Response) => {
     try {
       const currentUserId = req.user?.userId;
       const otherUserId = req.params.userId;
@@ -45,7 +45,7 @@ router.get(
         return res.status(401).json({ error: "Unauthorized" });
       }
 
-      const messages = Database.getMessagesBetweenUsers(
+      const messages = await Database.getMessagesBetweenUsers(
         currentUserId,
         otherUserId
       );
@@ -61,7 +61,7 @@ router.get(
 router.post(
   "/messages/:userId/read",
   authenticateToken,
-  (req: AuthenticatedRequest, res: Response) => {
+  async (req: AuthenticatedRequest, res: Response) => {
     try {
       const currentUserId = req.user?.userId;
       const otherUserId = req.params.userId;
@@ -70,7 +70,7 @@ router.post(
         return res.status(401).json({ error: "Unauthorized" });
       }
 
-      Database.markMessagesAsRead(otherUserId, currentUserId);
+      await Database.markMessagesAsRead(otherUserId, currentUserId);
       res.json({ success: true });
     } catch (error) {
       console.error("Mark messages as read error:", error);
@@ -83,7 +83,7 @@ router.post(
 router.get(
   "/profile",
   authenticateToken,
-  (req: AuthenticatedRequest, res: Response) => {
+  async (req: AuthenticatedRequest, res: Response) => {
     try {
       const currentUserId = req.user?.userId;
 
@@ -91,7 +91,7 @@ router.get(
         return res.status(401).json({ error: "Unauthorized" });
       }
 
-      const user = Database.findUserById(currentUserId);
+      const user = await Database.findUserById(currentUserId);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }

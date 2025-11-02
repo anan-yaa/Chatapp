@@ -1,124 +1,209 @@
-import fs from "fs";
-import path from "path";
 import { User, Message } from "../types";
-
-const USERS_FILE = path.join(__dirname, "../data/users.json");
-const MESSAGES_FILE = path.join(__dirname, "../data/messages.json");
+import { UserModel } from "../models/User";
+import { MessageModel } from "../models/Message";
 
 export class Database {
-  private static ensureFileExists(filePath: string): void {
-    if (!fs.existsSync(filePath)) {
-      fs.writeFileSync(filePath, "[]", "utf8");
-    }
-  }
-
   // User operations
-  static getUsers(): User[] {
-    this.ensureFileExists(USERS_FILE);
-    const data = fs.readFileSync(USERS_FILE, "utf8");
-    const users = JSON.parse(data);
-    return users.map((user: any) => ({
-      ...user,
-      lastSeen: new Date(user.lastSeen),
+  static async getUsers(): Promise<User[]> {
+    const users = await UserModel.find({}).lean().exec();
+    return users.map((user) => ({
+      id: user._id.toString(),
+      username: user.username,
+      email: user.email,
+      password: user.password,
+      avatar: user.avatar,
+      status: user.status,
+      lastSeen:
+        user.lastSeen instanceof Date ? user.lastSeen : new Date(user.lastSeen),
     }));
   }
 
-  static saveUsers(users: User[]): void {
-    this.ensureFileExists(USERS_FILE);
-    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), "utf8");
-  }
+  static async findUserByEmail(email: string): Promise<User | null> {
+    const user = await UserModel.findOne({ email: email.toLowerCase() })
+      .lean()
+      .exec();
+    if (!user) return null;
 
-  static findUserByEmail(email: string): User | undefined {
-    const users = this.getUsers();
-    return users.find((user) => user.email === email);
-  }
-
-  static findUserById(id: string): User | undefined {
-    const users = this.getUsers();
-    return users.find((user) => user.id === id);
-  }
-
-  static createUser(user: Omit<User, "id">): User {
-    const users = this.getUsers();
-    const newUser: User = {
-      ...user,
-      id: this.generateId(),
-      status: "offline",
-      lastSeen: new Date(),
+    return {
+      id: user._id.toString(),
+      username: user.username,
+      email: user.email,
+      password: user.password,
+      avatar: user.avatar,
+      status: user.status,
+      lastSeen:
+        user.lastSeen instanceof Date ? user.lastSeen : new Date(user.lastSeen),
     };
-    users.push(newUser);
-    this.saveUsers(users);
-    return newUser;
   }
 
-  static updateUser(id: string, updates: Partial<User>): User | null {
-    const users = this.getUsers();
-    const index = users.findIndex((user) => user.id === id);
-    if (index === -1) return null;
+  static async findUserById(id: string): Promise<User | null> {
+    const user = await UserModel.findById(id).lean().exec();
+    if (!user) return null;
 
-    users[index] = { ...users[index], ...updates };
-    this.saveUsers(users);
-    return users[index];
+    return {
+      id: user._id.toString(),
+      username: user.username,
+      email: user.email,
+      password: user.password,
+      avatar: user.avatar,
+      status: user.status,
+      lastSeen:
+        user.lastSeen instanceof Date ? user.lastSeen : new Date(user.lastSeen),
+    };
+  }
+
+  static async createUser(user: Omit<User, "id">): Promise<User> {
+    const newUser = new UserModel({
+      ...user,
+      email: user.email.toLowerCase(),
+      status: user.status || "offline",
+      lastSeen: user.lastSeen || new Date(),
+    });
+
+    const savedUser = await newUser.save();
+    const savedDoc = savedUser.toObject();
+
+    return {
+      id: savedDoc._id.toString(),
+      username: savedDoc.username,
+      email: savedDoc.email,
+      password: savedDoc.password,
+      avatar: savedDoc.avatar,
+      status: savedDoc.status,
+      lastSeen:
+        savedDoc.lastSeen instanceof Date
+          ? savedDoc.lastSeen
+          : new Date(savedDoc.lastSeen),
+    };
+  }
+
+  static async updateUser(
+    id: string,
+    updates: Partial<User>
+  ): Promise<User | null> {
+    const user = await UserModel.findByIdAndUpdate(
+      id,
+      { ...updates },
+      { new: true, runValidators: true }
+    )
+      .lean()
+      .exec();
+
+    if (!user) return null;
+
+    return {
+      id: user._id.toString(),
+      username: user.username,
+      email: user.email,
+      password: user.password,
+      avatar: user.avatar,
+      status: user.status,
+      lastSeen:
+        user.lastSeen instanceof Date ? user.lastSeen : new Date(user.lastSeen),
+    };
   }
 
   // Message operations
-  static getMessages(): Message[] {
-    this.ensureFileExists(MESSAGES_FILE);
-    const data = fs.readFileSync(MESSAGES_FILE, "utf8");
-    const messages = JSON.parse(data);
-    return messages.map((message: any) => ({
-      ...message,
-      timestamp: new Date(message.timestamp),
+  static async getMessages(): Promise<Message[]> {
+    const messages = await MessageModel.find({})
+      .sort({ timestamp: 1 })
+      .lean()
+      .exec();
+
+    return messages.map((message) => ({
+      id: message._id.toString(),
+      content: message.content,
+      senderId: message.senderId,
+      receiverId: message.receiverId,
+      timestamp:
+        message.timestamp instanceof Date
+          ? message.timestamp
+          : new Date(message.timestamp),
+      type: message.type,
+      read: message.read,
     }));
   }
 
-  static saveMessages(messages: Message[]): void {
-    this.ensureFileExists(MESSAGES_FILE);
-    fs.writeFileSync(MESSAGES_FILE, JSON.stringify(messages, null, 2), "utf8");
-  }
-
-  static createMessage(
+  static async createMessage(
     message: Omit<Message, "id" | "timestamp" | "read">
-  ): Message {
-    const messages = this.getMessages();
-    const newMessage: Message = {
+  ): Promise<Message> {
+    console.log(
+      `💾 [MongoDB] Saving message to database:`,
+      message.content.substring(0, 50)
+    );
+    const newMessage = new MessageModel({
       ...message,
-      id: this.generateId(),
       timestamp: new Date(),
       read: false,
-    };
-    messages.push(newMessage);
-    this.saveMessages(messages);
-    return newMessage;
-  }
-
-  static getMessagesBetweenUsers(user1Id: string, user2Id: string): Message[] {
-    const messages = this.getMessages();
-    return messages
-      .filter(
-        (message) =>
-          (message.senderId === user1Id && message.receiverId === user2Id) ||
-          (message.senderId === user2Id && message.receiverId === user1Id)
-      )
-      .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
-  }
-
-  static markMessagesAsRead(senderId: string, receiverId: string): void {
-    const messages = this.getMessages();
-    const updatedMessages = messages.map((message) => {
-      if (
-        message.senderId === senderId &&
-        message.receiverId === receiverId &&
-        !message.read
-      ) {
-        return { ...message, read: true };
-      }
-      return message;
     });
-    this.saveMessages(updatedMessages);
+
+    const savedMessage = await newMessage.save();
+    const savedDoc = savedMessage.toObject();
+    console.log(
+      `✅ [MongoDB] Message saved with ID: ${savedDoc._id.toString()}`
+    );
+
+    return {
+      id: savedDoc._id.toString(),
+      content: savedDoc.content,
+      senderId: savedDoc.senderId,
+      receiverId: savedDoc.receiverId,
+      timestamp:
+        savedDoc.timestamp instanceof Date
+          ? savedDoc.timestamp
+          : new Date(savedDoc.timestamp),
+      type: savedDoc.type,
+      read: savedDoc.read,
+    };
   }
 
-  private static generateId(): string {
-    return Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+  static async getMessagesBetweenUsers(
+    user1Id: string,
+    user2Id: string
+  ): Promise<Message[]> {
+    console.log(
+      `📊 [MongoDB] Fetching messages between ${user1Id} and ${user2Id}`
+    );
+    const messages = await MessageModel.find({
+      $or: [
+        { senderId: user1Id, receiverId: user2Id },
+        { senderId: user2Id, receiverId: user1Id },
+      ],
+    })
+      .sort({ timestamp: 1 })
+      .lean()
+      .exec();
+
+    console.log(
+      `✅ [MongoDB] Retrieved ${messages.length} messages from database`
+    );
+    return messages.map((message) => ({
+      id: message._id.toString(),
+      content: message.content,
+      senderId: message.senderId,
+      receiverId: message.receiverId,
+      timestamp:
+        message.timestamp instanceof Date
+          ? message.timestamp
+          : new Date(message.timestamp),
+      type: message.type,
+      read: message.read,
+    }));
+  }
+
+  static async markMessagesAsRead(
+    senderId: string,
+    receiverId: string
+  ): Promise<void> {
+    await MessageModel.updateMany(
+      {
+        senderId: senderId,
+        receiverId: receiverId,
+        read: false,
+      },
+      {
+        $set: { read: true },
+      }
+    ).exec();
   }
 }

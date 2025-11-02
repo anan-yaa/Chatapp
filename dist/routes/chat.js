@@ -5,9 +5,9 @@ const database_1 = require("../utils/database");
 const auth_1 = require("../middleware/auth");
 const router = (0, express_1.Router)();
 // Get all users (excluding current user)
-router.get("/users", auth_1.authenticateToken, (req, res) => {
+router.get("/users", auth_1.authenticateToken, async (req, res) => {
     try {
-        const users = database_1.Database.getUsers();
+        const users = await database_1.Database.getUsers();
         const currentUserId = req.user?.userId;
         const filteredUsers = users
             .filter((user) => user.id !== currentUserId)
@@ -27,14 +27,14 @@ router.get("/users", auth_1.authenticateToken, (req, res) => {
     }
 });
 // Get messages between two users
-router.get("/messages/:userId", auth_1.authenticateToken, (req, res) => {
+router.get("/messages/:userId", auth_1.authenticateToken, async (req, res) => {
     try {
         const currentUserId = req.user?.userId;
         const otherUserId = req.params.userId;
         if (!currentUserId) {
             return res.status(401).json({ error: "Unauthorized" });
         }
-        const messages = database_1.Database.getMessagesBetweenUsers(currentUserId, otherUserId);
+        const messages = await database_1.Database.getMessagesBetweenUsers(currentUserId, otherUserId);
         res.json(messages);
     }
     catch (error) {
@@ -43,14 +43,14 @@ router.get("/messages/:userId", auth_1.authenticateToken, (req, res) => {
     }
 });
 // Mark messages as read
-router.post("/messages/:userId/read", auth_1.authenticateToken, (req, res) => {
+router.post("/messages/:userId/read", auth_1.authenticateToken, async (req, res) => {
     try {
         const currentUserId = req.user?.userId;
         const otherUserId = req.params.userId;
         if (!currentUserId) {
             return res.status(401).json({ error: "Unauthorized" });
         }
-        database_1.Database.markMessagesAsRead(otherUserId, currentUserId);
+        await database_1.Database.markMessagesAsRead(otherUserId, currentUserId);
         res.json({ success: true });
     }
     catch (error) {
@@ -59,13 +59,13 @@ router.post("/messages/:userId/read", auth_1.authenticateToken, (req, res) => {
     }
 });
 // Get current user profile
-router.get("/profile", auth_1.authenticateToken, (req, res) => {
+router.get("/profile", auth_1.authenticateToken, async (req, res) => {
     try {
         const currentUserId = req.user?.userId;
         if (!currentUserId) {
             return res.status(401).json({ error: "Unauthorized" });
         }
-        const user = database_1.Database.findUserById(currentUserId);
+        const user = await database_1.Database.findUserById(currentUserId);
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
