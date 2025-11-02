@@ -86,13 +86,17 @@ class SocketService {
                     });
                     // Get receiver's socket info
                     const receiverSocket = this.connectedUsers.get(data.receiverId);
+                    // Use room-based messaging for reliable delivery
+                    const roomId = this.getRoomId(user.userId, data.receiverId);
+                    // Emit to the room (both sender and receiver will receive if they're in the room)
+                    this.io.to(roomId).emit("message", message);
+                    // Also send directly to receiver's socket if online (backup)
                     if (receiverSocket) {
-                        // Send to receiver if online
                         this.io.to(receiverSocket.socketId).emit("message", message);
                     }
-                    // Send back to sender for confirmation
+                    // Send to sender as well (in case they're not in the room yet)
                     socket.emit("message", message);
-                    console.log(`Message sent from ${user.username} to ${data.receiverId}`);
+                    console.log(`Message sent from ${user.username} to ${data.receiverId} (room: ${roomId})`);
                     // Check if receiver is a bot and handle bot response
                     if (await botService_1.BotService.isBotUser(data.receiverId)) {
                         botService_1.BotService.handleMessage(message, this.io);

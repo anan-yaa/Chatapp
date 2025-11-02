@@ -18,7 +18,9 @@ class Database {
         }));
     }
     static async findUserByEmail(email) {
-        const user = await User_1.UserModel.findOne({ email: email.toLowerCase() }).lean().exec();
+        const user = await User_1.UserModel.findOne({ email: email.toLowerCase() })
+            .lean()
+            .exec();
         if (!user)
             return null;
         return {
@@ -61,7 +63,9 @@ class Database {
             password: savedDoc.password,
             avatar: savedDoc.avatar,
             status: savedDoc.status,
-            lastSeen: savedDoc.lastSeen instanceof Date ? savedDoc.lastSeen : new Date(savedDoc.lastSeen),
+            lastSeen: savedDoc.lastSeen instanceof Date
+                ? savedDoc.lastSeen
+                : new Date(savedDoc.lastSeen),
         };
     }
     static async updateUser(id, updates) {
@@ -91,12 +95,15 @@ class Database {
             content: message.content,
             senderId: message.senderId,
             receiverId: message.receiverId,
-            timestamp: message.timestamp instanceof Date ? message.timestamp : new Date(message.timestamp),
+            timestamp: message.timestamp instanceof Date
+                ? message.timestamp
+                : new Date(message.timestamp),
             type: message.type,
             read: message.read,
         }));
     }
     static async createMessage(message) {
+        console.log(`💾 [MongoDB] Saving message to database:`, message.content.substring(0, 50));
         const newMessage = new Message_1.MessageModel({
             ...message,
             timestamp: new Date(),
@@ -104,17 +111,21 @@ class Database {
         });
         const savedMessage = await newMessage.save();
         const savedDoc = savedMessage.toObject();
+        console.log(`✅ [MongoDB] Message saved with ID: ${savedDoc._id.toString()}`);
         return {
             id: savedDoc._id.toString(),
             content: savedDoc.content,
             senderId: savedDoc.senderId,
             receiverId: savedDoc.receiverId,
-            timestamp: savedDoc.timestamp instanceof Date ? savedDoc.timestamp : new Date(savedDoc.timestamp),
+            timestamp: savedDoc.timestamp instanceof Date
+                ? savedDoc.timestamp
+                : new Date(savedDoc.timestamp),
             type: savedDoc.type,
             read: savedDoc.read,
         };
     }
     static async getMessagesBetweenUsers(user1Id, user2Id) {
+        console.log(`📊 [MongoDB] Fetching messages between ${user1Id} and ${user2Id}`);
         const messages = await Message_1.MessageModel.find({
             $or: [
                 { senderId: user1Id, receiverId: user2Id },
@@ -124,12 +135,15 @@ class Database {
             .sort({ timestamp: 1 })
             .lean()
             .exec();
+        console.log(`✅ [MongoDB] Retrieved ${messages.length} messages from database`);
         return messages.map((message) => ({
             id: message._id.toString(),
             content: message.content,
             senderId: message.senderId,
             receiverId: message.receiverId,
-            timestamp: message.timestamp instanceof Date ? message.timestamp : new Date(message.timestamp),
+            timestamp: message.timestamp instanceof Date
+                ? message.timestamp
+                : new Date(message.timestamp),
             type: message.type,
             read: message.read,
         }));

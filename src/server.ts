@@ -38,8 +38,9 @@ app.use("/api/", limiter);
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files
-app.use(express.static(path.join(__dirname, "../dist")));
+// Serve static files (only for backend assets if needed)
+// Frontend is served by React dev server (port 3002) or build folder
+// app.use(express.static(path.join(__dirname, "../dist")));
 
 // API routes
 app.use("/api/auth", authRoutes);
@@ -50,39 +51,8 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "OK", timestamp: new Date().toISOString() });
 });
 
-// Serve HTML files
-app.get("/login", (req, res) => {
-  res.sendFile(path.join(__dirname, "../dist/htmls/login.html"));
-});
-
-app.get("/signup", (req, res) => {
-  res.sendFile(path.join(__dirname, "../dist/htmls/signup.html"));
-});
-
-// Also serve HTML files directly from /htmls/ path
-app.get("/htmls/signup.html", (req, res) => {
-  res.sendFile(path.join(__dirname, "../dist/htmls/signup.html"));
-});
-
-app.get("/htmls/login.html", (req, res) => {
-  res.sendFile(path.join(__dirname, "../dist/htmls/login.html"));
-});
-
-app.get("/htmls/index.html", (req, res) => {
-  res.sendFile(path.join(__dirname, "../dist/htmls/index.html"));
-});
-
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../dist/htmls/index.html"));
-});
-
-app.get("/test", (req, res) => {
-  res.sendFile(path.join(__dirname, "../dist/test.html"));
-});
-
-app.get("/bots", (req, res) => {
-  res.sendFile(path.join(__dirname, "../dist/bots.html"));
-});
+// Note: HTML routes removed - Frontend is now React app on port 3002
+// React handles all frontend routing
 
 // Initialize MongoDB connection
 connectDB().catch((error) => {
@@ -92,6 +62,9 @@ connectDB().catch((error) => {
 
 // Initialize Socket.IO
 const socketService = new SocketService(server);
+
+// Make socket.io available to routes
+app.set('socketio', socketService.getIO());
 
 // Error handling middleware
 app.use(
@@ -113,10 +86,11 @@ app.use("*", (req, res) => {
 
 // Start server
 server.listen(PORT, async () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📱 Chat app available at http://localhost:${PORT}`);
-  console.log(`🔐 Login page: http://localhost:${PORT}/login`);
-  console.log(`📝 Signup page: http://localhost:${PORT}/signup`);
+  console.log(`🚀 Backend server running on port ${PORT}`);
+  console.log(`📡 API endpoints available at http://localhost:${PORT}/api`);
+  console.log(`🔌 Socket.IO server ready for connections`);
+  console.log(`⚛️  React frontend: http://localhost:3001 (run separately)`);
+  console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
 });
 
 // Graceful shutdown

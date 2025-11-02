@@ -9,7 +9,6 @@ const http_1 = __importDefault(require("http"));
 const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
-const path_1 = __importDefault(require("path"));
 const auth_1 = __importDefault(require("./routes/auth"));
 const chat_1 = __importDefault(require("./routes/chat"));
 const socket_1 = require("./services/socket");
@@ -35,8 +34,9 @@ app.use("/api/", limiter);
 // Body parsing middleware
 app.use(express_1.default.json({ limit: "10mb" }));
 app.use(express_1.default.urlencoded({ extended: true }));
-// Serve static files
-app.use(express_1.default.static(path_1.default.join(__dirname, "../dist")));
+// Serve static files (only for backend assets if needed)
+// Frontend is served by React dev server (port 3002) or build folder
+// app.use(express.static(path.join(__dirname, "../dist")));
 // API routes
 app.use("/api/auth", auth_1.default);
 app.use("/api/chat", chat_1.default);
@@ -44,32 +44,8 @@ app.use("/api/chat", chat_1.default);
 app.get("/api/health", (req, res) => {
     res.json({ status: "OK", timestamp: new Date().toISOString() });
 });
-// Serve HTML files
-app.get("/login", (req, res) => {
-    res.sendFile(path_1.default.join(__dirname, "../dist/htmls/login.html"));
-});
-app.get("/signup", (req, res) => {
-    res.sendFile(path_1.default.join(__dirname, "../dist/htmls/signup.html"));
-});
-// Also serve HTML files directly from /htmls/ path
-app.get("/htmls/signup.html", (req, res) => {
-    res.sendFile(path_1.default.join(__dirname, "../dist/htmls/signup.html"));
-});
-app.get("/htmls/login.html", (req, res) => {
-    res.sendFile(path_1.default.join(__dirname, "../dist/htmls/login.html"));
-});
-app.get("/htmls/index.html", (req, res) => {
-    res.sendFile(path_1.default.join(__dirname, "../dist/htmls/index.html"));
-});
-app.get("/", (req, res) => {
-    res.sendFile(path_1.default.join(__dirname, "../dist/htmls/index.html"));
-});
-app.get("/test", (req, res) => {
-    res.sendFile(path_1.default.join(__dirname, "../dist/test.html"));
-});
-app.get("/bots", (req, res) => {
-    res.sendFile(path_1.default.join(__dirname, "../dist/bots.html"));
-});
+// Note: HTML routes removed - Frontend is now React app on port 3002
+// React handles all frontend routing
 // Initialize MongoDB connection
 (0, mongodb_1.connectDB)().catch((error) => {
     console.error("Failed to connect to MongoDB:", error);
@@ -77,6 +53,8 @@ app.get("/bots", (req, res) => {
 });
 // Initialize Socket.IO
 const socketService = new socket_1.SocketService(server);
+// Make socket.io available to routes
+app.set('socketio', socketService.getIO());
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
