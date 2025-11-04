@@ -83,12 +83,8 @@ const Chat = () => {
     newSocket.on('message', (message) => {
       console.log('Received real-time message:', message);
       
-      // Only add message if we're NOT the sender (sender already added it locally)
-      // This prevents duplicate messages on sender side
-      const isOwnMessage = message.senderId === user?.id;
-      
-      // Add message to current chat if it's from the selected user AND we didn't send it
-      if (!isOwnMessage && selectedChat && 
+      // Add message to current chat if it's relevant to the selected conversation
+      if (selectedChat && 
           (message.senderId === selectedChat.id || message.receiverId === selectedChat.id)) {
         setMessages((prev) => [...prev, message]);
       }
@@ -129,49 +125,16 @@ const Chat = () => {
     if (!selectedChat || !content.trim()) return;
 
     try {
-      // Send via REST API
-      const response = await fetch('http://localhost:3000/api/chat/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          recipientId: selectedChat.id,
+      // Send via Socket.IO for real-time delivery
+      if (socket) {
+        socket.emit('message', {
+          receiverId: selectedChat.id,
           content: content.trim(),
-        }),
-      });
-
-      if (response.ok) {
-        const newMessage = await response.json();
-        setMessages((prev) => [...prev, newMessage]);
-        
-        // Update chat list with the new message
-        setChatList((prevList) => {
-          const updatedList = prevList.map((chat) => {
-            if (chat.id === selectedChat.id) {
-              return {
-                ...chat,
-                lastMessage: content.trim(),
-                lastMessageTime: new Date().toISOString(),
-              };
-            }
-            return chat;
-          });
-          
-          // Sort to put this chat at the top
-          return sortChatsByRecency(updatedList);
+          type: 'text',
         });
-        
-        // Also emit via Socket.IO for real-time if available
-        if (socket) {
-          socket.emit('sendMessage', {
-            recipientId: selectedChat.id,
-            content: content.trim(),
-          });
-        }
+        console.log('Message sent via socket:', selectedChat.id);
       } else {
-        console.error('Failed to send message:', response.status);
+        console.error('Socket not connected, message not sent in real-time');
       }
     } catch (error) {
       console.error('Error sending message:', error);
@@ -181,6 +144,12 @@ const Chat = () => {
   const handleSelectChat = async (chat) => {
     setSelectedChat(chat);
     setMessages([]); // Clear previous messages
+    
+    // Join the room for this chat
+    if (socket) {
+      socket.emit('join', chat.id);
+      console.log('Joined room for chat:', chat.id);
+    }
     
     // Load messages via REST API
     try {

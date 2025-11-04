@@ -86,11 +86,11 @@ app.use("*", (req, res) => {
 
 // Start server
 server.listen(PORT, async () => {
-  console.log(`🚀 Backend server running on port ${PORT}`);
-  console.log(`📡 API endpoints available at http://localhost:${PORT}/api`);
-  console.log(`🔌 Socket.IO server ready for connections`);
-  console.log(`⚛️  React frontend: http://localhost:3001 (run separately)`);
-  console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`Backend server running on port ${PORT}`);
+  console.log(`API endpoints available at http://localhost:${PORT}/api`);
+  console.log(`Socket.IO server ready for connections`);
+  console.log(`React frontend: http://localhost:3001 (run separately)`);
+  console.log(`Health check: http://localhost:${PORT}/api/health`);
 });
 
 // Graceful shutdown
