@@ -2,10 +2,7 @@
 
 A modern, real-time chat application built with **TypeScript**, **Express**, **Socket.IO**, **MongoDB**, and **React**. Features secure authentication, AI-powered bot responses, emoji support, and a beautiful responsive UI.
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
-
-## ✨ Features
+## Features
 
 ### Core Features
 - 🔐 **Secure Authentication** - JWT-based user authentication with bcrypt password hashing
@@ -282,18 +279,3 @@ Edit `src/services/botService.ts` to customize bot behaviors and responses.
 - Clear build cache: `rm -rf dist/ client/build/`
 - Reinstall dependencies: `rm -rf node_modules/ && npm install`
 
-## 📄 License
-
-This project is licensed under the **MIT License**.
-
-## 👨‍💻 Author
-
-**Your Name**
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome!
-
-## ⭐ Show Your Support
-
-Give a ⭐️ if you like this project!
